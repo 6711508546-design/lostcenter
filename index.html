@@ -24,6 +24,8 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Prompt', sans-serif;
+            /* เพิ่มการรองรับ Emoji สีสวยๆ */
+            font-family: 'Prompt', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
         }
 
         body {
@@ -64,6 +66,10 @@
             color: var(--primary-color);
             margin-bottom: 10px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         p.subtitle {
@@ -161,19 +167,17 @@
             transform: translateY(-10px);
         }
 
-        /* ----- ส่วนที่แก้ไขสำหรับรูปภาพ ----- */
-        .card-img-wrapper {
+        /* ----- ส่วนที่แก้ไขสำหรับ Emoji ----- */
+        .card-emoji-header {
             width: 100%;
-            height: 200px;
-            background-color: #eee;
+            height: 160px;
+            /* ใช้ Gradient สีพาสเทลเป็นพื้นหลังให้ Emoji ดูเด่น */
+            background: linear-gradient(135deg, #E0C3FC 10%, #8EC5FC 90%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem; /* ขนาด Emoji ใหญ่ๆ */
             position: relative;
-        }
-
-        .card-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* ทำให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
-            display: block;
         }
         /* -------------------------------- */
 
@@ -201,6 +205,9 @@
             font-size: 1.2rem;
             margin-bottom: 10px;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .card-info {
@@ -308,15 +315,15 @@
 
     <div class="container">
         <header>
-            <h1><i class="fa-solid fa-magnifying-glass-location"></i> Lost & Found</h1>
+            <h1>🔎 Lost & Found</h1>
             <p class="subtitle">ศูนย์กลางแจ้งของหายและเก็บของได้ ออนไลน์</p>
 
             <div class="actions">
                 <button class="btn btn-lost" onclick="openModal('lost')">
-                    <i class="fa-solid fa-bullhorn"></i> แจ้งของหาย
+                    📣 แจ้งของหาย
                 </button>
                 <button class="btn btn-found" onclick="openModal('found')">
-                    <i class="fa-solid fa-hand-holding-heart"></i> แจ้งเก็บได้
+                    🤲 แจ้งเก็บได้
                 </button>
             </div>
 
@@ -335,7 +342,7 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle" style="margin-bottom: 20px;">แจ้งข้อมูล</h2>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 15px;">*ขณะนี้ยังไม่สามารถอัปโหลดรูปภาพจริงได้ ระบบจะใช้รูปเริ่มต้นแทน</p>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 15px;">*ระบบจะแสดงไอคอนเริ่มต้น 📦 ให้ก่อนนะครับ</p>
             <form id="reportForm">
                 <input type="hidden" id="itemType">
                 <div class="form-group">
@@ -356,7 +363,7 @@
     </div>
 
     <script>
-        // Mock Data (ข้อมูลตัวอย่าง พร้อม URL รูปภาพ)
+        // Mock Data (ข้อมูลตัวอย่าง เปลี่ยนจาก image url เป็น emoji ตัวเดียว)
         let items = [
             {
                 id: 1,
@@ -365,7 +372,7 @@
                 location: 'ห้องสมุด ชั้น 2 โซนเงียบ',
                 desc: 'เคสใส มีสติ๊กเกอร์รูปแมวที่ด้านหลัง ติดต่อ 081-xxxxxxx',
                 date: '10 นาทีที่แล้ว',
-                image: 'https://images.unsplash.com/photo-1634403665481-74948d815f03?w=500&q=80' // รูป iPhone
+                emoji: '📱' 
             },
             {
                 id: 2,
@@ -374,7 +381,7 @@
                 location: 'ลานจอดรถตึก A แถวเสา C4',
                 desc: 'มีตุ๊กตาหมีสีน้ำตาลห้อยอยู่ นำไปฝากไว้ที่ป้อมยามหน้าตึกแล้วครับ',
                 date: '1 ชั่วโมงที่แล้ว',
-                image: 'https://images.unsplash.com/photo-1627454819213-1432135c5710?w=500&q=80' // รูปกุญแจ
+                emoji: '🔑'
             },
             {
                 id: 3,
@@ -383,7 +390,7 @@
                 location: 'โรงอาหารกลาง โต๊ะแถวหน้า',
                 desc: 'ยี่ห้อ Coach ข้างในมีบัตรนักศึกษาและเงินสดจำนวนหนึ่ง',
                 date: 'วันนี้ 09:00 น.',
-                image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&q=80' // รูปกระเป๋าตัง
+                emoji: '👛'
             },
             {
                 id: 4,
@@ -392,7 +399,16 @@
                 location: 'ทางเดินเชื่อมตึก 3',
                 desc: 'ตกอยู่ตรงบันได เก็บได้ช่วงบ่ายครับ',
                 date: 'เมื่อวานนี้',
-                image: 'https://images.unsplash.com/photo-1606841837239-c5a1a4a076ae?w=500&q=80' // รูปหูฟัง
+                emoji: '🎧'
+            },
+            {
+                id: 5,
+                type: 'lost',
+                name: 'ร่มกันแดดสีเหลือง',
+                location: 'หน้าตึกกิจกรรม',
+                desc: 'ลืมไว้วางไว้ตรงม้านั่งตอนฝนตก',
+                date: 'เมื่อวานนี้',
+                emoji: '☂️'
             }
         ];
 
@@ -400,7 +416,7 @@
         const modal = document.getElementById('reportModal');
         const form = document.getElementById('reportForm');
 
-        // Function to render items (แก้ไขส่วนแสดงผลรูปภาพ)
+        // Function to render items (แก้ไขส่วนแสดงผล Emoji)
         function renderItems(filter = 'all') {
             container.innerHTML = '';
             
@@ -416,16 +432,13 @@
             filteredItems.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                // ใช้รูปภาพจาก URL ที่เตรียมไว้, หากโหลดไม่ได้ให้ใช้รูปกล่องแทน
-                const fallbackImage = 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=500&q=80'; 
 
                 card.innerHTML = `
                     <div class="status-badge ${item.type === 'lost' ? 'status-lost' : 'status-found'}">
                         ${item.type === 'lost' ? 'หาย' : 'เจอแล้ว'}
                     </div>
-                    <div class="card-img-wrapper">
-                        <img src="${item.image}" alt="${item.name}" onerror="this.src='${fallbackImage}'">
-                    </div>
+                    <div class="card-emoji-header">
+                        ${item.emoji} </div>
                     <div class="card-body">
                         <h3 class="card-title">${item.name}</h3>
                         <div class="card-info"><i class="fa-solid fa-location-dot"></i> ${item.location}</div>
@@ -450,7 +463,7 @@
             form.reset();
         }
 
-        // Form Submit (แก้ไขให้เพิ่มรูปภาพเริ่มต้น)
+        // Form Submit (แก้ไขให้เพิ่ม Emoji เริ่มต้น)
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const newItem = {
@@ -460,15 +473,14 @@
                 location: document.getElementById('itemLocation').value,
                 desc: document.getElementById('itemDesc').value,
                 date: 'เมื่อสักครู่',
-                // รูปภาพเริ่มต้นสำหรับรายการใหม่ (รูปกล่องพัสดุ)
-                image: 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=500&q=80'
+                // Emoji เริ่มต้นสำหรับรายการใหม่
+                emoji: '📦'
             };
             
             items.unshift(newItem); 
             renderItems('all');
             closeModal();
-            // เพิ่มหน่วงเวลาเล็กน้อยเพื่อให้เห็นการเปลี่ยนแปลง
-            setTimeout(() => alert('บันทึกข้อมูลเรียบร้อย! (ใช้รูปภาพเริ่มต้น)'), 100);
+            setTimeout(() => alert('บันทึกข้อมูลเรียบร้อย!'), 100);
         });
 
         // Filter Function
