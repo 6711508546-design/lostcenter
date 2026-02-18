@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found - ศูนย์รวมแจ้งของหาย</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #6C63FF; /* สีม่วงทันสมัย */
+            --secondary-color: #FF6584; /* สีชมพูเตือนภัย (ของหาย) */
+            --success-color: #38E54D; /* สีเขียว (เจอแล้ว) */
+            --bg-color: #F3F5F9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-light: #777777;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: radial-gradient(#6C63FF 0.5px, transparent 0.5px), radial-gradient(#6C63FF 0.5px, var(--bg-color) 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* Decoration Circles */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+        .blob-1 { top: -100px; left: -100px; width: 400px; height: 400px; background: #E0C3FC; }
+        .blob-2 { bottom: -50px; right: -50px; width: 300px; height: 300px; background: #8EC5FC; }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        p.subtitle {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-lost {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-found {
+            background: var(--success-color);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Filter Tabs */
+        .filters {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 5px;
+            border-radius: 30px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Grid Layout */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding-bottom: 50px;
+        }
+
+        /* Card Design */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        /* ----- ส่วนที่แก้ไขสำหรับรูปภาพ ----- */
+        .card-img-wrapper {
+            width: 100%;
+            height: 200px;
+            background-color: #eee;
+            position: relative;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* ทำให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
+            display: block;
+        }
+        /* -------------------------------- */
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        .status-lost { background: var(--secondary-color); }
+        .status-found { background: var(--success-color); }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .card-info {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-date {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        /* Modal (Popup) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .item-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-magnifying-glass-location"></i> Lost & Found</h1>
+            <p class="subtitle">ศูนย์กลางแจ้งของหายและเก็บของได้ ออนไลน์</p>
+
+            <div class="actions">
+                <button class="btn btn-lost" onclick="openModal('lost')">
+                    <i class="fa-solid fa-bullhorn"></i> แจ้งของหาย
+                </button>
+                <button class="btn btn-found" onclick="openModal('found')">
+                    <i class="fa-solid fa-hand-holding-heart"></i> แจ้งเก็บได้
+                </button>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterItems('all')">ทั้งหมด</button>
+                <button class="filter-btn" onclick="filterItems('lost')">ของหาย</button>
+                <button class="filter-btn" onclick="filterItems('found')">เก็บได้</button>
+            </div>
+        </header>
+
+        <main id="itemContainer" class="item-grid">
+            </main>
+    </div>
+
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="margin-bottom: 20px;">แจ้งข้อมูล</h2>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 15px;">*ขณะนี้ยังไม่สามารถอัปโหลดรูปภาพจริงได้ ระบบจะใช้รูปเริ่มต้นแทน</p>
+            <form id="reportForm">
+                <input type="hidden" id="itemType">
+                <div class="form-group">
+                    <label>ชื่อสิ่งของ</label>
+                    <input type="text" id="itemName" placeholder="เช่น กระเป๋าสตางค์, กุญแจรถ" required>
+                </div>
+                <div class="form-group">
+                    <label>สถานที่ (หาย/เจอ)</label>
+                    <input type="text" id="itemLocation" placeholder="เช่น โรงอาหาร, ตึก 5" required>
+                </div>
+                <div class="form-group">
+                    <label>รายละเอียดเพิ่มเติม</label>
+                    <textarea id="itemDesc" rows="3" placeholder="สี, ลักษณะเด่น, เบอร์ติดต่อกลับ"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">บันทึกข้อมูล</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data (ข้อมูลตัวอย่าง พร้อม URL รูปภาพ)
+        let items = [
+            {
+                id: 1,
+                type: 'lost',
+                name: 'iPhone 13 Pro สีขาว',
+                location: 'ห้องสมุด ชั้น 2 โซนเงียบ',
+                desc: 'เคสใส มีสติ๊กเกอร์รูปแมวที่ด้านหลัง ติดต่อ 081-xxxxxxx',
+                date: '10 นาทีที่แล้ว',
+                image: 'https://images.unsplash.com/photo-1634403665481-74948d815f03?w=500&q=80' // รูป iPhone
+            },
+            {
+                id: 2,
+                type: 'found',
+                name: 'พวงกุญแจรถ Honda',
+                location: 'ลานจอดรถตึก A แถวเสา C4',
+                desc: 'มีตุ๊กตาหมีสีน้ำตาลห้อยอยู่ นำไปฝากไว้ที่ป้อมยามหน้าตึกแล้วครับ',
+                date: '1 ชั่วโมงที่แล้ว',
+                image: 'https://images.unsplash.com/photo-1627454819213-1432135c5710?w=500&q=80' // รูปกุญแจ
+            },
+            {
+                id: 3,
+                type: 'lost',
+                name: 'กระเป๋าสตางค์หนังสีดำ',
+                location: 'โรงอาหารกลาง โต๊ะแถวหน้า',
+                desc: 'ยี่ห้อ Coach ข้างในมีบัตรนักศึกษาและเงินสดจำนวนหนึ่ง',
+                date: 'วันนี้ 09:00 น.',
+                image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&q=80' // รูปกระเป๋าตัง
+            },
+            {
+                id: 4,
+                type: 'found',
+                name: 'หูฟัง AirPods (ข้างขวา)',
+                location: 'ทางเดินเชื่อมตึก 3',
+                desc: 'ตกอยู่ตรงบันได เก็บได้ช่วงบ่ายครับ',
+                date: 'เมื่อวานนี้',
+                image: 'https://images.unsplash.com/photo-1606841837239-c5a1a4a076ae?w=500&q=80' // รูปหูฟัง
+            }
+        ];
+
+        const container = document.getElementById('itemContainer');
+        const modal = document.getElementById('reportModal');
+        const form = document.getElementById('reportForm');
+
+        // Function to render items (แก้ไขส่วนแสดงผลรูปภาพ)
+        function renderItems(filter = 'all') {
+            container.innerHTML = '';
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === (filter === 'all' ? 'ทั้งหมด' : (filter === 'lost' ? 'ของหาย' : 'เก็บได้'))) {
+                    btn.classList.add('active');
+                }
+            });
+
+            const filteredItems = filter === 'all' ? items : items.filter(item => item.type === filter);
+
+            filteredItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                // ใช้รูปภาพจาก URL ที่เตรียมไว้, หากโหลดไม่ได้ให้ใช้รูปกล่องแทน
+                const fallbackImage = 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=500&q=80'; 
+
+                card.innerHTML = `
+                    <div class="status-badge ${item.type === 'lost' ? 'status-lost' : 'status-found'}">
+                        ${item.type === 'lost' ? '
