@@ -3,422 +3,1738 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lost & Found - ศูนย์รวมแจ้งของหาย</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <title>Python Quest ม.3 | เกมเรียนรู้ print(), input() และตัวแปร</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts: Prompt (Thai UI) & JetBrains Mono (Code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #6C63FF; /* สีม่วงทันสมัย */
-            --secondary-color: #FF6584; /* สีชมพูเตือนภัย (ของหาย) */
-            --success-color: #38E54D; /* สีเขียว (เจอแล้ว) */
-            --bg-color: #F3F5F9;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-light: #777777;
-            --shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Prompt', sans-serif;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: 'Prompt', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
             overflow-x: hidden;
-            background-image: radial-gradient(#6C63FF 0.5px, transparent 0.5px), radial-gradient(#6C63FF 0.5px, var(--bg-color) 0.5px);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
         }
-
-        /* Decoration Circles */
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
+        code, pre, .font-code {
+            font-family: 'JetBrains Mono', monospace;
         }
-        .blob-1 { top: -100px; left: -100px; width: 400px; height: 400px; background: #E0C3FC; }
-        .blob-2 { bottom: -50px; right: -50px; width: 300px; height: 300px; background: #8EC5FC; }
-
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Subtle animated background grid */
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
         }
-
-        /* Header */
-        header {
-            text-align: center;
-            padding: 40px 0 20px;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        
-        h1 {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-weight: 600;
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
         }
-
-        p.subtitle {
-            color: var(--text-light);
-            margin-bottom: 30px;
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
         }
-
-        /* Action Buttons */
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
         }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
+        /* Blinking terminal cursor */
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .cursor-blink {
+            animation: blink 1s infinite;
         }
-
-        .btn-lost {
-            background: var(--secondary-color);
-            color: white;
+        /* Pop-in animation for code blocks and memory boxes */
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
-
-        .btn-found {
-            background: var(--success-color);
-            color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        .animate-pop {
+            animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        /* Filter Tabs */
-        .filters {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            background: white;
-            padding: 5px;
-            border-radius: 30px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        /* Shake animation on error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
         }
-
-        .filter-btn {
-            padding: 8px 20px;
-            border: none;
-            background: transparent;
-            border-radius: 25px;
-            cursor: pointer;
-            color: var(--text-light);
-            transition: all 0.3s;
+        .animate-shake {
+            animation: shake 0.35s ease-in-out;
         }
-
-        .filter-btn.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        /* Grid Layout */
-        .item-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            padding-bottom: 50px;
-        }
-
-        /* Card Design */
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease;
-            position: relative;
-            border: 1px solid rgba(0,0,0,0.03);
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-        }
-
-        /* ----- ส่วนที่แก้ไขสำหรับรูปภาพ ----- */
-        .card-img-wrapper {
-            width: 100%;
-            height: 200px;
-            background-color: #eee;
-            position: relative;
-        }
-
-        .card-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* ทำให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
-            display: block;
-        }
-        /* -------------------------------- */
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 2;
-        }
-
-        .status-lost { background: var(--secondary-color); }
-        .status-found { background: var(--success-color); }
-
-        .card-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: var(--text-main);
-        }
-
-        .card-info {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-date {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-top: 15px;
-            text-align: right;
-        }
-
-        /* Modal (Popup) */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #aaa;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 600px) {
-            h1 { font-size: 1.8rem; }
-            .item-grid { grid-template-columns: 1fr; }
+        /* Print styles for certificate */
+        @media print {
+            body * { visibility: hidden; }
+            #certificate-printable, #certificate-printable * { visibility: visible; }
+            #certificate-printable {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+            }
         }
     </style>
 </head>
-<body>
+<body class="bg-grid-pattern min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
 
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
+    <!-- ==================== TOP NAVIGATION BAR ==================== -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+            <!-- Brand Logo -->
+            <button onclick="navigateTo('home')" class="flex items-center gap-2.5 text-left group focus:outline-none">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform">
+                    <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 6 4.02 6 6.5V9h6v1H5.5C3.01 10 2 11.79 2 14.5S3.01 19 5.5 19H7v-2.5C7 14.57 8.57 13 10.5 13h5c1.38 0 2.5-1.12 2.5-2.5v-4C18 4.02 16.52 2 12 2zm-2.5 2.5a1 1 0 110 2 1 1 0 010-2z"/>
+                        <path d="M18.5 10H17v2.5c0 1.93-1.57 3.5-3.5 3.5h-5C7.12 16 6 17.12 6 18.5v4C6 24.98 7.48 22 12 22c5.52 0 6-2.02 6-4.5V15h-6v-1h6.5c2.49 0 3.5-1.79 3.5-4.5S20.99 10 18.5 10zm-4 9.5a1 1 0 110-2 1 1 0 010 2z" opacity="0.85"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-base sm:text-lg tracking-tight text-white">Python Quest</span>
+                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">ม.3</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">ฝึกพิมพ์คำสั่ง print() • input() • ตัวแปรพื้นฐาน</p>
+                </div>
+            </button>
 
-    <div class="container">
-        <header>
-            <h1><i class="fa-solid fa-magnifying-glass-location"></i> Lost & Found</h1>
-            <p class="subtitle">ศูนย์กลางแจ้งของหายและเก็บของได้ ออนไลน์</p>
-
-            <div class="actions">
-                <button class="btn btn-lost" onclick="openModal('lost')">
-                    <i class="fa-solid fa-bullhorn"></i> แจ้งของหาย
+            <!-- Navigation Buttons -->
+            <nav class="flex items-center gap-1.5 sm:gap-2">
+                <button onclick="navigateTo('home')" id="nav-home" class="px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-800 transition flex items-center gap-1.5">
+                    <span>🏠</span><span class="hidden md:inline">หน้าแรก</span>
                 </button>
-                <button class="btn btn-found" onclick="openModal('found')">
-                    <i class="fa-solid fa-hand-holding-heart"></i> แจ้งเก็บได้
+                <button onclick="openModal('modal-guide')" class="px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-sky-500/10 text-sky-300 border border-sky-500/30 hover:bg-sky-500/20 transition flex items-center gap-1.5">
+                    <span>📖</span><span>คลังความรู้</span>
+                </button>
+                <button onclick="openModal('modal-rules')" class="px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center gap-1.5">
+                    <span>📜</span><span>กติกา</span>
+                </button>
+                <button onclick="navigateTo('sandbox')" id="nav-sandbox" class="px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 transition flex items-center gap-1.5">
+                    <span>🧪</span><span class="hidden sm:inline">สนามทดลอง</span>
+                </button>
+                <button onclick="toggleSound()" id="btn-sound" title="เปิด/ปิดเสียง" class="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                    🔊
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ==================== TOAST NOTIFICATION ==================== -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="flex-1 flex flex-col">
+
+        <!-- ==================== SCREEN 1: HOME / LANDING PAGE ==================== -->
+        <section id="screen-home" class="max-w-6xl mx-auto w-full px-4 py-8 sm:py-12 flex flex-col gap-10">
+            
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800/95 to-slate-900 border border-slate-700/80 p-6 sm:p-10 md:p-12 shadow-2xl overflow-hidden">
+                <!-- Decorative Glows -->
+                <div class="absolute -top-24 -right-24 w-72 h-72 bg-sky-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-xs sm:text-sm font-semibold">
+                            <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                            สื่อการเรียนรู้เชิงโต้ตอบ • ระดับชั้นมัธยมศึกษาปีที่ 3 (ม.3)
+                        </div>
+                        
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight text-white">
+                            ฝึกพิมพ์คำสั่ง <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-yellow-300">ภาษา Python</span> ด้วยตนเองและดูผลลัพธ์จริง!
+                        </h1>
+                        
+                        <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+                            เกมเพื่อการศึกษาสำหรับนักเรียน <strong>ชั้นมัธยมศึกษาปีที่ 3</strong> เน้นปูพื้นฐานให้เข้าใจง่าย เลือกฝึกได้ทั้งคำสั่งแสดงผล <code class="text-sky-300 bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-700">print()</code> คำสั่งรับข้อมูล <code class="text-emerald-300 bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-700">input()</code> และ <span class="text-yellow-300 font-semibold">ตัวแปรพื้นฐาน</span> โดยให้นักเรียนได้ลองพิมพ์โค้ดจริงและโต้ตอบกับหน้าจอ Terminal ทันที!
+                        </p>
+
+                        <!-- Primary Action Buttons -->
+                        <div class="flex flex-wrap items-center gap-3 pt-2">
+                            <button onclick="startGameFromHome()" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-base sm:text-lg shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 active:scale-95 transition flex items-center gap-2.5">
+                                <span>⌨️</span>
+                                <span id="btn-start-label">เริ่มลองพิมพ์โค้ดด่านที่ 1</span>
+                            </button>
+                            <button onclick="openModal('modal-guide')" class="px-5 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold text-sm sm:text-base border border-slate-600 active:scale-95 transition flex items-center gap-2">
+                                <span>📚</span>
+                                <span>ศึกษาบทเรียนก่อนเล่น</span>
+                            </button>
+                            <button onclick="openModal('modal-rules')" class="px-5 py-3.5 rounded-2xl bg-slate-800/70 hover:bg-slate-700 text-amber-300 font-semibold text-sm sm:text-base border border-amber-500/30 active:scale-95 transition flex items-center gap-2">
+                                <span>📜</span>
+                                <span>กติกาการเล่น</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Preview Card on Right -->
+                    <div class="lg:col-span-5">
+                        <div class="rounded-2xl bg-slate-950 border border-slate-700/90 shadow-2xl overflow-hidden">
+                            <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                                    <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                </div>
+                                <span class="text-xs font-code text-slate-400">hello_m3.py</span>
+                            </div>
+                            <div class="p-5 font-code text-xs sm:text-sm space-y-2.5 leading-relaxed">
+                                <div class="text-slate-500"># ตัวอย่างคำสั่งพื้นฐานที่เข้าใจง่าย</div>
+                                <div>
+                                    <span class="text-slate-100">name</span> <span class="text-sky-400">=</span> <span class="text-emerald-400">input</span>(<span class="text-amber-300">"พิมพ์ชื่อของคุณ: "</span>)
+                                </div>
+                                <div>
+                                    <span class="text-sky-400">print</span>(<span class="text-amber-300">"สวัสดี"</span>, <span class="text-slate-100">name</span>)
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-800 text-slate-300">
+                                    <div class="text-[11px] text-slate-500 mb-1">ผลลัพธ์เมื่อกดรัน (Terminal):</div>
+                                    <div class="text-emerald-400">&gt; พิมพ์ชื่อของคุณ: <span class="text-white underline">น้ำใส</span></div>
+                                    <div class="text-sky-300">&gt; สวัสดี น้ำใส</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 Core Pillars for Grade 9 Curriculum (Clickable Topic Launchers) -->
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                        <span>🎯</span> เลือกหัวข้อหลักที่ต้องการลองพิมพ์ฝึกฝน
+                    </h2>
+                    <button onclick="openModal('modal-guide')" class="text-sm text-sky-400 hover:text-sky-300 font-medium underline self-start sm:self-auto">อ่านสรุปเนื้อหาทั้งหมด &rarr;</button>
+                </div>
+                <div class="grid md:grid-cols-3 gap-5">
+                    <!-- Card 1: print() -->
+                    <button onclick="loadLevel(0)" class="text-left rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-sky-400 hover:bg-slate-900 p-6 transition group flex flex-col justify-between shadow-lg">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center font-code font-bold text-lg group-hover:scale-110 transition-transform">
+                                    print()
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-300">ด่านที่ 1–2</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">1. คำสั่งแสดงผล <code class="text-sky-400">print()</code></h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                ฝึกพิมพ์คำสั่งแสดงข้อความและตัวเลขออกทางหน้าจอ เข้าใจการใช้เครื่องหมายคำพูด <code class="text-amber-300">" "</code> อย่างถูกต้อง
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs font-bold text-sky-400 group-hover:translate-x-1 transition-transform">
+                            คลิกเพื่อลองพิมพ์คำสั่ง print() &rarr;
+                        </div>
+                    </button>
+
+                    <!-- Card 2: Variables -->
+                    <button onclick="loadLevel(2)" class="text-left rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-yellow-400 hover:bg-slate-900 p-6 transition group flex flex-col justify-between shadow-lg">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-yellow-500/15 text-yellow-300 flex items-center justify-center font-code font-bold text-lg group-hover:scale-110 transition-transform">
+                                    x = 10
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/15 text-yellow-300">ด่านที่ 3–5</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">2. ตัวแปรพื้นฐาน (Variables)</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                เรียนรู้การสร้างกล่องเก็บข้อมูลชื่อเข้าใจง่าย เช่น <code class="text-yellow-200">name</code>, <code class="text-yellow-200">age</code>, <code class="text-yellow-200">a</code>, <code class="text-yellow-200">b</code> และการบวกเลขพื้นฐาน
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs font-bold text-yellow-300 group-hover:translate-x-1 transition-transform">
+                            คลิกเพื่อลองสร้างตัวแปร &rarr;
+                        </div>
+                    </button>
+
+                    <!-- Card 3: input() -->
+                    <button onclick="loadLevel(5)" class="text-left rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-400 hover:bg-slate-900 p-6 transition group flex flex-col justify-between shadow-lg">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-code font-bold text-lg group-hover:scale-110 transition-transform">
+                                    input()
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300">ด่านที่ 6–8</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">3. คำสั่งรับค่า <code class="text-emerald-400">input()</code></h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                ฝึกพิมพ์คำสั่งรับข้อความและตัวเลขจากผู้ใช้ทางแป้นพิมพ์ แล้วนำค่าที่รับมาแสดงผลโต้ตอบจริง
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
+                            คลิกเพื่อลองพิมพ์คำสั่ง input() &rarr;
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stage Selection Grid (8 Levels) -->
+            <div class="rounded-3xl bg-slate-900/80 border border-slate-800 p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                            <span>🗺️</span> เลือกด่านฝึกพิมพ์คำสั่ง Python (ทั้งหมด 8 ด่าน)
+                        </h2>
+                        <p class="text-slate-400 text-sm mt-1">สามารถเลือกเล่นด่านใดก็ได้เพื่อฝึกพิมพ์คำสั่ง <code class="text-sky-300">print()</code>, <code class="text-yellow-300">ตัวแปร</code> และ <code class="text-emerald-300">input()</code></p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="resetAllProgress()" class="px-3.5 py-2 rounded-xl text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition">
+                            🔄 รีเซ็ตคะแนนและดาว
+                        </button>
+                    </div>
+                </div>
+
+                <div id="stage-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Populated dynamically by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 2: MAIN GAMEPLAY WORKSPACE ==================== -->
+        <section id="screen-game" class="hidden max-w-7xl mx-auto w-full px-3 sm:px-6 py-5 flex-1 flex flex-col gap-4">
+            
+            <!-- Top Game Status HUD -->
+            <div class="rounded-2xl bg-slate-900 border border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <button onclick="navigateTo('home')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-medium transition">
+                        &larr; แผนที่ด่าน
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <span id="hud-level-badge" class="px-3 py-1 rounded-lg bg-sky-500/20 text-sky-300 font-bold text-xs sm:text-sm border border-sky-500/30">
+                            ด่านที่ 1 / 8
+                        </span>
+                        <h2 id="hud-level-title" class="font-bold text-white text-sm sm:text-base truncate max-w-[180px] sm:max-w-xs">
+                            ก้าวแรกสู่ print()
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- Progress Dots -->
+                <div id="hud-progress-dots" class="hidden xl:flex items-center gap-1.5">
+                    <!-- Dots rendered by JS -->
+                </div>
+
+                <!-- Hearts & Score -->
+                <div class="flex items-center gap-3 sm:gap-5">
+                    <div class="flex items-center gap-1 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800" title="พลังชีวิต">
+                        <span id="hud-hearts" class="text-sm sm:text-base tracking-wider">❤️❤️❤️</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                        <span class="text-yellow-400">⭐</span>
+                        <span id="hud-score" class="font-bold text-white text-sm sm:text-base">0</span>
+                        <span class="text-xs text-slate-400">คะแนน</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main 2-Column Interactive Area -->
+            <div class="grid lg:grid-cols-12 gap-5 flex-1 items-start">
+                
+                <!-- LEFT COLUMN (7 cols): Mission + Code Builder + Code Block Bank -->
+                <div class="lg:col-span-7 flex flex-col gap-4">
+                    
+                    <!-- Mission Brief Card -->
+                    <div class="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800/90 border border-sky-500/30 p-4 sm:p-5 shadow-md">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <span>🎯</span> โจทย์ภารกิจ
+                                    </span>
+                                    <span id="mission-topic-badge" class="text-[11px] font-code px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                                        print()
+                                    </span>
+                                </div>
+                                <p id="mission-desc" class="text-white text-sm sm:text-base font-medium mt-1.5 leading-relaxed">
+                                    <!-- Mission description -->
+                                </p>
+                            </div>
+                            <button onclick="toggleHint()" class="shrink-0 px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-semibold transition flex items-center gap-1.5">
+                                <span>💡</span><span>คำใบ้ / ตัวอย่าง</span>
+                            </button>
+                        </div>
+
+                        <!-- Expected Output Sample -->
+                        <div class="mt-3 pt-3 border-t border-slate-700/70 flex flex-wrap items-center gap-2 text-xs">
+                            <span class="text-slate-400">ตัวอย่างผลลัพธ์ที่ต้องการ:</span>
+                            <code id="mission-target" class="px-2.5 py-1 rounded-lg bg-slate-950 text-emerald-300 border border-slate-800 font-code">
+                                <!-- Target output -->
+                            </code>
+                        </div>
+
+                        <!-- Collapsible Hint Box -->
+                        <div id="mission-hint-box" class="hidden mt-3 p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs sm:text-sm leading-relaxed animate-pop space-y-2">
+                            <!-- Hint text -->
+                        </div>
+                    </div>
+
+                    <!-- Real Interactive Python Code Editor (พื้นที่พิมพ์คำสั่ง Python ด้วยตนเอง) -->
+                    <div id="code-editor-container" class="rounded-2xl bg-slate-950 border border-slate-700/90 shadow-xl overflow-hidden flex flex-col">
+                        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sky-400 font-code text-sm font-bold">main.py</span>
+                                <span class="text-xs text-slate-400">— พิมพ์คำสั่ง Python ของคุณลงในช่องด้านล่าง</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="resetLevelCode()" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                                    ↺ โค้ดเริ่มต้น
+                                </button>
+                                <button onclick="clearCodeEditor()" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 transition">
+                                    🗑️ ล้างทั้งหมด
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick-Insert Helper Buttons (ปุ่มช่วยพิมพ์คำสั่งสำหรับมือใหม่และมือถือ) -->
+                        <div class="bg-slate-900/60 px-3 py-2 border-b border-slate-800/80 flex flex-wrap items-center gap-1.5">
+                            <span class="text-[11px] text-slate-400 mr-1">ปุ่มช่วยพิมพ์:</span>
+                            <button type="button" onclick="insertSnippet('print(&quot;&quot;)', 7)" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-code text-xs font-semibold transition">
+                                print("")
+                            </button>
+                            <button type="button" onclick="insertSnippet('input(&quot;&quot;)', 7)" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-code text-xs font-semibold transition">
+                                input("")
+                            </button>
+                            <button type="button" onclick="insertSnippet('int(input(&quot;&quot;))', 11)" class="px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 font-code text-xs font-semibold transition">
+                                int(input(""))
+                            </button>
+                            <button type="button" onclick="insertSnippet(' = ', 3)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-slate-700 font-code text-xs font-semibold transition">
+                                =
+                            </button>
+                            <button type="button" onclick="insertSnippet('&quot;&quot;', 1)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-code text-xs font-semibold transition">
+                                ""
+                            </button>
+                            <button type="button" onclick="insertSnippet(', ', 2)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-code text-xs font-semibold transition">
+                                ,
+                            </button>
+                        </div>
+
+                        <!-- Line Numbers + Editable Code Textarea -->
+                        <div class="flex flex-1 min-h-[210px] bg-slate-950 font-code text-sm sm:text-base">
+                            <div id="editor-line-numbers" class="select-none py-4 px-3 text-right text-slate-600 bg-slate-900/40 border-r border-slate-800/80 leading-relaxed">
+                                1
+                            </div>
+                            <textarea id="student-code-editor" oninput="updateLineNumbers()" onkeydown="handleEditorKeydown(event)" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="# พิมพ์คำสั่ง Python ของคุณที่นี่ เช่น print(&quot;สวัสดี&quot;)" class="flex-1 w-full bg-transparent text-slate-100 p-4 focus:outline-none leading-relaxed resize-none"></textarea>
+                        </div>
+
+                        <!-- Editor Action Bar -->
+                        <div class="bg-slate-900/90 px-4 py-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs text-slate-400">
+                                พิมพ์คำสั่งเสร็จแล้ว กดปุ่มสีเขียวเพื่อรันและดูผลลัพธ์
+                            </span>
+                            <button onclick="runAssembledCode()" id="btn-run-code" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+                                <span>▶</span>
+                                <span>รันคำสั่ง (Run Python)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN (5 cols): Live Variable Memory + Simulated Python Terminal + Feedback -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                    
+                    <!-- Variable Memory Visualizer (กล่องส่องค่าตัวแปรในหน่วยความจำ) -->
+                    <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <h3 class="text-xs sm:text-sm font-bold text-yellow-300 flex items-center gap-1.5">
+                                <span>📦</span> หน่วยความจำตัวแปร (Variables RAM)
+                            </h3>
+                            <span class="text-[11px] text-slate-400">อัปเดตอัตโนมัติเมื่อรันโค้ด</span>
+                        </div>
+                        <div id="memory-inspector" class="grid grid-cols-2 gap-2.5 min-h-[68px]">
+                            <div class="col-span-2 flex items-center justify-center text-xs text-slate-500 bg-slate-950/60 rounded-xl py-4 border border-slate-800/80">
+                                ยังไม่มีตัวแปรถูกสร้างในหน่วยความจำ
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Python Terminal Console -->
+                    <div class="rounded-2xl bg-slate-950 border border-slate-700 shadow-2xl overflow-hidden flex flex-col">
+                        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                <span class="text-xs font-bold text-slate-200">หน้าจอแสดงผล Python Terminal</span>
+                            </div>
+                            <span class="text-[11px] font-code text-slate-400">Python 3.12 Sim</span>
+                        </div>
+
+                        <!-- Terminal Output Stream -->
+                        <div id="terminal-output" class="p-4 font-code text-xs sm:text-sm min-h-[190px] max-h-[260px] overflow-y-auto space-y-2 text-slate-200 bg-[#070b14]">
+                            <div class="text-slate-500">กดปุ่ม "▶ รันโปรแกรม" เพื่อดูการทำงานของโค้ด...</div>
+                        </div>
+
+                        <!-- Interactive input() prompt bar (appears when code executes input()) -->
+                        <form id="terminal-input-form" onsubmit="submitTerminalInput(event)" class="hidden bg-slate-900 p-3 border-t border-emerald-500/40 flex items-center gap-2 animate-pop">
+                            <span class="text-emerald-400 font-code text-sm font-bold">&gt;&gt;&gt;</span>
+                            <input type="text" id="terminal-input-field" autocomplete="off" placeholder="พิมพ์ค่าที่ต้องการป้อน แล้วกด Enter..." class="flex-1 bg-slate-950 text-white font-code text-sm px-3 py-2 rounded-xl border border-emerald-500/50 focus:outline-none focus:border-emerald-400">
+                            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition">
+                                ส่งค่า (Enter)
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Result / Feedback Card (Success or Educational Error Explanation) -->
+                    <div id="feedback-card" class="hidden rounded-2xl p-4 sm:p-5 border shadow-lg animate-pop">
+                        <!-- Dynamically filled on run completion -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 3: PYTHON SANDBOX (สนามทดลองโค้ดอิสระ) ==================== -->
+        <section id="screen-sandbox" class="hidden max-w-6xl mx-auto w-full px-4 py-6 flex flex-col gap-6">
+            <div class="rounded-3xl bg-slate-900 border border-slate-800 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">🧪 สนามทดลองโค้ดอิสระ (Interactive Playground)</span>
+                    <h2 class="text-2xl font-bold text-white mt-1">ทดลองเขียนและรันคำสั่ง <code class="text-sky-400">print()</code>, <code class="text-emerald-400">input()</code> และตัวแปร</h2>
+                    <p class="text-slate-400 text-sm mt-1">เลือกตัวอย่างสำเร็จรูป หรือแก้ไขโค้ดด้านล่างแล้วกดรันเพื่อทดสอบการทำงานจริง!</p>
+                </div>
+                <button onclick="navigateTo('home')" class="self-start sm:self-center px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium border border-slate-700 transition">
+                    &larr; กลับหน้าหลัก
                 </button>
             </div>
 
-            <div class="filters">
-                <button class="filter-btn active" onclick="filterItems('all')">ทั้งหมด</button>
-                <button class="filter-btn" onclick="filterItems('lost')">ของหาย</button>
-                <button class="filter-btn" onclick="filterItems('found')">เก็บได้</button>
+            <!-- Preset Templates -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs text-slate-400 mr-1">ตัวอย่างด่วน:</span>
+                <button onclick="loadSandboxPreset('greet')" class="px-3.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-xs font-medium transition">
+                    1. รับชื่อด้วย input() และทักทาย
+                </button>
+                <button onclick="loadSandboxPreset('calc')" class="px-3.5 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 text-xs font-medium transition">
+                    2. เครื่องคิดเลขบวกเลข 2 จำนวน
+                </button>
+                <button onclick="loadSandboxPreset('shop')" class="px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-medium transition">
+                    3. คำนวณราคาสินค้าและเงินทอน
+                </button>
             </div>
-        </header>
 
-        <main id="itemContainer" class="item-grid">
-            </main>
-    </div>
+            <div class="grid lg:grid-cols-12 gap-5">
+                <!-- Code Textarea Editor -->
+                <div class="lg:col-span-6 rounded-2xl bg-slate-950 border border-slate-700 overflow-hidden flex flex-col">
+                    <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                        <span class="font-code text-xs text-sky-400 font-bold">sandbox.py (แก้ไขโค้ดได้อิสระ)</span>
+                        <span class="text-[11px] text-slate-400">รองรับตัวแปร, input(), int(), print()</span>
+                    </div>
+                    <textarea id="sandbox-editor" rows="10" spellcheck="false" class="w-full flex-1 bg-slate-950 text-slate-100 font-code text-sm p-4 focus:outline-none leading-relaxed resize-none">name = input("กรุณากรอกชื่อเล่นของคุณ: ")
+age = int(input("คุณอายุเท่าไร (ปี): "))
+next_year = age + 1
+print("สวัสดีคุณ", name)
+print("ปีหน้าคุณจะมีอายุ", next_year, "ปี")</textarea>
+                    <div class="bg-slate-900 px-4 py-3 border-t border-slate-800 flex justify-end">
+                        <button onclick="runSandboxCode()" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg transition flex items-center gap-2">
+                            <span>▶</span><span>รันโค้ดในสนามทดลอง</span>
+                        </button>
+                    </div>
+                </div>
 
-    <div id="reportModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle" style="margin-bottom: 20px;">แจ้งข้อมูล</h2>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 15px;">*ขณะนี้ยังไม่สามารถอัปโหลดรูปภาพจริงได้ ระบบจะใช้รูปเริ่มต้นแทน</p>
-            <form id="reportForm">
-                <input type="hidden" id="itemType">
-                <div class="form-group">
-                    <label>ชื่อสิ่งของ</label>
-                    <input type="text" id="itemName" placeholder="เช่น กระเป๋าสตางค์, กุญแจรถ" required>
+                <!-- Sandbox Terminal & RAM -->
+                <div class="lg:col-span-6 flex flex-col gap-4">
+                    <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
+                        <h3 class="text-xs font-bold text-yellow-300 mb-2">📦 ตัวแปรในหน่วยความจำ (Sandbox RAM)</h3>
+                        <div id="sandbox-memory" class="grid grid-cols-2 gap-2 min-h-[56px]">
+                            <div class="col-span-2 text-xs text-slate-500 text-center py-3 bg-slate-950/60 rounded-xl">กดรันโค้ดเพื่อดูค่าตัวแปร</div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-slate-950 border border-slate-700 overflow-hidden flex-1 flex flex-col">
+                        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 text-xs font-bold text-slate-200">
+                            💻 ผลลัพธ์การทำงาน (Sandbox Terminal)
+                        </div>
+                        <div id="sandbox-terminal" class="p-4 font-code text-xs sm:text-sm min-h-[180px] max-h-[260px] overflow-y-auto space-y-2 bg-[#070b14]">
+                            <div class="text-slate-500">พร้อมรันโปรแกรม Python ของคุณแล้ว...</div>
+                        </div>
+                        <form id="sandbox-input-form" onsubmit="submitSandboxInput(event)" class="hidden bg-slate-900 p-3 border-t border-emerald-500/40 flex items-center gap-2">
+                            <span class="text-emerald-400 font-code text-sm font-bold">&gt;&gt;&gt;</span>
+                            <input type="text" id="sandbox-input-field" autocomplete="off" placeholder="พิมพ์ค่าแล้วกด Enter..." class="flex-1 bg-slate-950 text-white font-code text-sm px-3 py-2 rounded-xl border border-emerald-500/50 focus:outline-none">
+                            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">ส่งค่า</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>สถานที่ (หาย/เจอ)</label>
-                    <input type="text" id="itemLocation" placeholder="เช่น โรงอาหาร, ตึก 5" required>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 4: VICTORY & CERTIFICATE ==================== -->
+        <section id="screen-victory" class="hidden max-w-4xl mx-auto w-full px-4 py-8 flex flex-col items-center gap-6">
+            <div class="text-center space-y-2">
+                <div class="text-5xl">🏆</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">ยินดีด้วย! คุณพิชิตภารกิจ Python ม.3 ครบทั้ง 8 ด่านแล้ว</h2>
+                <p class="text-slate-300 text-sm sm:text-base">กรอกชื่อ-นามสกุลของคุณด้านล่างเพื่อออกเกียรติบัตรผู้ผ่านการเรียนรู้พื้นฐานภาษา Python</p>
+            </div>
+
+            <!-- Name Input Control -->
+            <div class="flex flex-wrap items-center justify-center gap-3 w-full max-w-lg">
+                <input type="text" id="cert-student-name" oninput="updateCertificateName(this.value)" placeholder="พิมพ์ชื่อ-นามสกุล (เช่น ด.ช.รักเรียน ขยันโค้ด)" class="flex-1 min-w-[240px] px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-sky-400">
+                <button onclick="window.print()" class="px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm shadow-lg transition flex items-center gap-2">
+                    <span>🖨️</span><span>พิมพ์ / บันทึก PDF</span>
+                </button>
+            </div>
+
+            <!-- Certificate Card -->
+            <div id="certificate-printable" class="w-full rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-4 border-yellow-400/70 p-6 sm:p-10 text-center shadow-2xl relative overflow-hidden">
+                <div class="border-2 border-dashed border-sky-400/40 rounded-2xl p-6 sm:p-8 space-y-4">
+                    <div class="inline-block px-4 py-1 rounded-full bg-yellow-400/20 text-yellow-300 text-xs font-bold tracking-wider">
+                        CERTIFICATE OF COMPLETION • วิทยาการคำนวณ ม.3
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า</h3>
+                    <div id="cert-display-name" class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-yellow-300 py-2 border-b border-slate-700 max-w-xl mx-auto">
+                        นักเรียนชั้นมัธยมศึกษาปีที่ 3
+                    </div>
+                    <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+                        ได้ผ่านการฝึกทักษะการเขียนโปรแกรมภาษา Python เบื้องต้น ครอบคลุมการใช้งานคำสั่งแสดงผล <code class="text-sky-300">print()</code> คำสั่งรับข้อมูล <code class="text-emerald-300">input()</code> และการจัดการตัวแปร (Variables) ด้วยคะแนนรวม <strong id="cert-score" class="text-yellow-300">0</strong> คะแนน
+                    </p>
+                    <div class="pt-4 flex items-center justify-center gap-8 text-xs text-slate-400">
+                        <div>
+                            <div class="font-bold text-slate-200">Python Quest ม.3</div>
+                            <div>สื่อการเรียนรู้เชิงโต้ตอบ</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-yellow-400/20 border border-yellow-400 flex items-center justify-center text-xl">
+                            🐍
+                        </div>
+                        <div>
+                            <div id="cert-date" class="font-bold text-slate-200">วันที่สำเร็จภารกิจ</div>
+                            <div>รับรองผลการเรียนรู้</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>รายละเอียดเพิ่มเติม</label>
-                    <textarea id="itemDesc" rows="3" placeholder="สี, ลักษณะเด่น, เบอร์ติดต่อกลับ"></textarea>
+            </div>
+
+            <button onclick="navigateTo('home')" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition">
+                กลับสู่หน้าหลัก
+            </button>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL 1: GAME RULES (กติกาการเล่น) ==================== -->
+    <div id="modal-rules" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'modal-rules')">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-pop max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-xl sm:text-2xl font-bold text-amber-300 flex items-center gap-2">
+                    <span>📜</span> กติกาการเล่น Python Quest ม.3
+                </h3>
+                <button onclick="closeModal('modal-rules')" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <div class="space-y-4 text-sm sm:text-base text-slate-300 leading-relaxed">
+                <div class="flex items-start gap-3 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-2xl">⌨️</span>
+                    <div>
+                        <h4 class="font-bold text-white">1. ลองพิมพ์คำสั่ง Python ด้วยตนเอง</h4>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">อ่านโจทย์ภารกิจ แล้วพิมพ์คำสั่ง <code class="text-sky-300">print()</code>, <code class="text-emerald-300">input()</code> หรือสร้าง <code class="text-yellow-300">ตัวแปร</code> ลงในพื้นที่เขียนโค้ด (สามารถกดปุ่มช่วยพิมพ์ด้านบนช่องโค้ดเพื่อความสะดวกได้)</p>
+                    </div>
                 </div>
-                <button type="submit" class="submit-btn">บันทึกข้อมูล</button>
-            </form>
+
+                <div class="flex items-start gap-3 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-2xl">💻</span>
+                    <div>
+                        <h4 class="font-bold text-white">2. กดรันโปรแกรมและโต้ตอบกับ Terminal</h4>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">เมื่อพิมพ์โค้ดเสร็จ ให้กดปุ่ม <strong class="text-emerald-400">"▶ รันคำสั่ง"</strong> หากในโค้ดมีคำสั่ง <code class="text-emerald-300">input()</code> หน้าจอ Terminal จะหยุดรอให้คุณพิมพ์ข้อมูลตอบโต้จริงและกด Enter</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-2xl">❤️</span>
+                    <div>
+                        <h4 class="font-bold text-white">3. พลังชีวิตและการให้คะแนน</h4>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">คุณมีพลังชีวิตเริ่มต้น <strong>3 ดวง (❤️❤️❤️)</strong> หากพิมพ์คำสั่งผิดรูปแบบ ระบบจะแจ้งคำอธิบายจุดที่ผิดเป็นภาษาไทยอย่างละเอียดเพื่อให้นำไปแก้ไขและลองรันใหม่ได้ทันที</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-2xl">🏆</span>
+                    <div>
+                        <h4 class="font-bold text-white">4. พิชิตครบ 8 ด่านรับเกียรติบัตร</h4>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">เมื่อผ่านครบทั้ง 8 ด่าน จะปลดล็อกหน้าเกียรติบัตรออนไลน์ที่สามารถใส่ชื่อของตนเองและสั่งพิมพ์ได้ทันที</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button onclick="closeModal('modal-rules')" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition">
+                    เข้าใจกติกาแล้ว ลุยเลย!
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- ==================== MODAL 2: PYTHON STUDY GUIDE (คลังความรู้ ม.3) ==================== -->
+    <div id="modal-guide" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'modal-guide')">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl flex flex-col gap-5 animate-pop max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <span class="text-xs font-bold text-sky-400">สรุปบทเรียนวิทยาการคำนวณ ชั้น ม.3</span>
+                    <h3 class="text-xl sm:text-2xl font-bold text-white">📖 คลังความรู้พื้นฐานภาษา Python</h3>
+                </div>
+                <button onclick="closeModal('modal-guide')" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <!-- Interactive Study Tabs -->
+            <div class="flex flex-wrap gap-2">
+                <button onclick="switchGuideTab('print')" id="tab-guide-print" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-sky-500 text-white transition">
+                    1. คำสั่ง print()
+                </button>
+                <button onclick="switchGuideTab('vars')" id="tab-guide-vars" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                    2. ตัวแปร (Variables)
+                </button>
+                <button onclick="switchGuideTab('input')" id="tab-guide-input" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                    3. คำสั่ง input() & แปลงชนิดข้อมูล
+                </button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div id="guide-content-area" class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-4 text-sm text-slate-300 leading-relaxed">
+                <!-- Populated dynamically by JS -->
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <button onclick="closeModal('modal-guide'); navigateTo('sandbox');" class="text-xs sm:text-sm text-emerald-400 hover:underline font-medium">
+                    🧪 ไปทดลองเขียนในสนามทดลองโค้ด &rarr;
+                </button>
+                <button onclick="closeModal('modal-guide')" class="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition">
+                    ปิดหน้าต่างความรู้
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT APPLICATION LOGIC ==================== -->
     <script>
-        // Mock Data (ข้อมูลตัวอย่าง พร้อม URL รูปภาพ)
-        let items = [
+        /* =========================================================================
+           1. WEB AUDIO API SOUND EFFECTS (NO EXTERNAL AUDIO FILES REQUIRED)
+           ========================================================================= */
+        const SoundFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume().catch(() => {});
+                }
+            },
+            playTone(freq, type, duration, delay = 0, gainVal = 0.08) {
+                if (!appState.soundEnabled) return;
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + delay);
+                    osc.stop(this.ctx.currentTime + delay + duration);
+                } catch (e) {}
+            },
+            click() { this.playTone(520, 'sine', 0.07, 0, 0.06); },
+            snap() { this.playTone(660, 'triangle', 0.09, 0, 0.08); },
+            remove() { this.playTone(320, 'sine', 0.09, 0, 0.06); },
+            success() {
+                this.playTone(523.25, 'triangle', 0.14, 0, 0.1);
+                this.playTone(659.25, 'triangle', 0.14, 0.1, 0.1);
+                this.playTone(783.99, 'triangle', 0.25, 0.2, 0.12);
+            },
+            error() {
+                this.playTone(220, 'sawtooth', 0.16, 0, 0.07);
+                this.playTone(175, 'sawtooth', 0.22, 0.14, 0.07);
+            }
+        };
+
+        /* =========================================================================
+           2. CURRICULUM DATA: 8 FOUNDATIONAL GRADE 9 PYTHON LEVELS (TYPING MODE)
+           ========================================================================= */
+        const LEVELS = [
             {
                 id: 1,
-                type: 'lost',
-                name: 'iPhone 13 Pro สีขาว',
-                location: 'ห้องสมุด ชั้น 2 โซนเงียบ',
-                desc: 'เคสใส มีสติ๊กเกอร์รูปแมวที่ด้านหลัง ติดต่อ 081-xxxxxxx',
-                date: '10 นาทีที่แล้ว',
-                image: 'https://images.unsplash.com/photo-1634403665481-74948d815f03?w=500&q=80' // รูป iPhone
+                title: "ลองพิมพ์คำสั่ง print() แรก",
+                tag: "หมวด 1: print()",
+                description: "ลองพิมพ์คำสั่ง print() เพื่อแสดงข้อความว่า \"สวัสดี Python\" ออกทางหน้าจอ",
+                targetDisplay: "สวัสดี Python",
+                starterCode: 'print("")',
+                hint: "พิมพ์ข้อความ สวัสดี Python ลงไปในเครื่องหมายคำพูด \" \" ของคำสั่ง print(\"สวัสดี Python\")",
+                explanation: "ยอดเยี่ยม! คำสั่ง print() ใช้แสดงผลออกทางหน้าจอ โดยข้อความจะต้องอยู่ในเครื่องหมายคำพูด \"...\" เสมอ",
+                validate: (env, outputs, code) => {
+                    return /print\s*\(/.test(code) && outputs.some(line => line.trim() === "สวัสดี Python");
+                }
             },
             {
                 id: 2,
-                type: 'found',
-                name: 'พวงกุญแจรถ Honda',
-                location: 'ลานจอดรถตึก A แถวเสา C4',
-                desc: 'มีตุ๊กตาหมีสีน้ำตาลห้อยอยู่ นำไปฝากไว้ที่ป้อมยามหน้าตึกแล้วครับ',
-                date: '1 ชั่วโมงที่แล้ว',
-                image: 'https://images.unsplash.com/photo-1627454819213-1432135c5710?w=500&q=80' // รูปกุญแจ
+                title: "แสดงผล 2 บรรทัดด้วย print()",
+                tag: "หมวด 1: print()",
+                description: "พิมพ์คำสั่ง print() 2 บรรทัด: บรรทัดแรกแสดงชื่อเล่นของคุณ และบรรทัดที่สองแสดงเลขชั้นเรียน 3",
+                targetDisplay: "บรรทัด 1: [ชื่อเล่น] | บรรทัด 2: 3",
+                starterCode: 'print("ต้นกล้า")\n',
+                hint: "เพิ่มคำสั่ง print(3) หรือ print(\"ม.3\") ในบรรทัดที่ 2 แล้วกดรันโปรแกรมได้เลย",
+                explanation: "เก่งมาก! โปรแกรม Python จะทำงานตามลำดับทีละบรรทัดจากบนลงล่าง ทำให้แสดงผลได้หลายบรรทัดต่อเนื่องกัน",
+                validate: (env, outputs, code) => {
+                    const printCount = (code.match(/print\s*\(/g) || []).length;
+                    return printCount >= 2 && outputs.length >= 2 && outputs[0].trim().length > 0 && outputs[1].includes("3");
+                }
             },
             {
                 id: 3,
-                type: 'lost',
-                name: 'กระเป๋าสตางค์หนังสีดำ',
-                location: 'โรงอาหารกลาง โต๊ะแถวหน้า',
-                desc: 'ยี่ห้อ Coach ข้างในมีบัตรนักศึกษาและเงินสดจำนวนหนึ่ง',
-                date: 'วันนี้ 09:00 น.',
-                image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&q=80' // รูปกระเป๋าตัง
+                title: "สร้างตัวแปรเก็บชื่อ (name)",
+                tag: "หมวด 2: ตัวแปรพื้นฐาน",
+                description: "สร้างตัวแปรชื่อ name เก็บชื่อเล่นของคุณ (เช่น name = \"น้ำใส\") แล้วใช้คำสั่ง print(name) เพื่อแสดงค่าในตัวแปร",
+                targetDisplay: "[ชื่อเล่นที่เก็บในตัวแปร name]",
+                starterCode: 'name = ""\nprint(name)',
+                hint: "ใส่ชื่อเล่นลงในเครื่องหมายคำพูดหลังเครื่องหมาย = เช่น name = \"น้ำใส\" สังเกตว่า print(name) ไม่ต้องใส่เครื่องหมายคำพูดรอบคำว่า name",
+                explanation: "ถูกต้อง! ตัวแปร name ทำหน้าที่เหมือนกล่องเก็บข้อมูล เมื่อสั่ง print(name) คอมพิวเตอร์จะหยิบค่าที่เก็บอยู่ในกล่องออกมาแสดง",
+                validate: (env, outputs) => {
+                    return env.name && typeof env.name.value === 'string' && env.name.value.trim().length > 0 && outputs.includes(env.name.value);
+                }
             },
             {
                 id: 4,
-                type: 'found',
-                name: 'หูฟัง AirPods (ข้างขวา)',
-                location: 'ทางเดินเชื่อมตึก 3',
-                desc: 'ตกอยู่ตรงบันได เก็บได้ช่วงบ่ายครับ',
-                date: 'เมื่อวานนี้',
-                image: 'https://images.unsplash.com/photo-1606841837239-c5a1a4a076ae?w=500&q=80' // รูปหูฟัง
+                title: "ตัวแปรตัวเลขและการบวก (a, b)",
+                tag: "หมวด 2: ตัวแปรพื้นฐาน",
+                description: "กำหนดตัวแปร a = 10 และ b = 5 จากนั้นสร้างตัวแปร total = a + b และใช้ print(total) แสดงผลบวก",
+                targetDisplay: "15",
+                starterCode: 'a = 10\nb = 5\n\nprint(total)',
+                hint: "เพิ่มบรรทัดที่ 3 ว่า total = a + b เพื่อนำค่าในตัวแปร a และ b มาบวกกันก่อนสั่ง print(total)",
+                explanation: "ยอดเยี่ยม! ตัวเลขไม่ต้องใส่เครื่องหมายคำพูด และสามารถนำตัวแปรมาบวก (+) ลบ (-) คูณ (*) หาร (/) กันได้ทันที",
+                validate: (env, outputs) => {
+                    return env.a?.value === 10 && env.b?.value === 5 && env.total?.value === 15 && outputs.includes("15");
+                }
+            },
+            {
+                id: 5,
+                title: "แสดงข้อความคู่กับตัวแปร",
+                tag: "หมวด 2: ตัวแปรพื้นฐาน",
+                description: "สร้างตัวแปร age = 15 แล้วใช้ print() แสดงข้อความ \"ฉันอายุ\" คู่กับตัวแปร age โดยใช้จุลภาค (,) คั่น",
+                targetDisplay: "ฉันอายุ 15",
+                starterCode: 'age = 15\nprint("ฉันอายุ", )',
+                hint: "พิมพ์ชื่อตัวแปร age หลังเครื่องหมายจุลภาคในวงเล็บ: print(\"ฉันอายุ\", age)",
+                explanation: "สุดยอด! เครื่องหมายจุลภาค (,) ในคำสั่ง print() ช่วยเชื่อมข้อความ (str) เข้ากับตัวเลข (int) และเว้นวรรคให้โดยอัตโนมัติ",
+                validate: (env, outputs) => {
+                    return env.age?.value === 15 && outputs.includes("ฉันอายุ 15");
+                }
+            },
+            {
+                id: 6,
+                title: "รับชื่อด้วยคำสั่ง input()",
+                tag: "หมวด 3: input()",
+                description: "พิมพ์คำสั่ง user = input(\"กรอกชื่อของคุณ: \") เพื่อรับชื่อทางแป้นพิมพ์ แล้วใช้ print(\"สวัสดี\", user) ทักทายผู้ใช้",
+                targetDisplay: "สวัสดี [ชื่อที่คุณพิมพ์ตอนรัน]",
+                starterCode: 'user = input("กรอกชื่อของคุณ: ")\n',
+                hint: "เพิ่มคำสั่ง print(\"สวัสดี\", user) ในบรรทัดที่ 2 เมื่อกดรัน ให้พิมพ์ชื่อในช่องด้านล่าง Terminal แล้วกด Enter",
+                explanation: "เยี่ยมมาก! คำสั่ง input() จะรอรับข้อความจากผู้ใช้ทางแป้นพิมพ์ แล้วนำไปเก็บไว้ในตัวแปร user เพื่อใช้งานต่อ",
+                validate: (env, outputs, code) => {
+                    return /input\s*\(/.test(code) && env.user !== undefined && outputs.some(l => l.startsWith("สวัสดี ") && l.trim().length > 7);
+                }
+            },
+            {
+                id: 7,
+                title: "รับตัวเลขด้วย int(input())",
+                tag: "หมวด 3: input()",
+                description: "รับอายุเป็นตัวเลขด้วย age = int(input(\"กรอกอายุ: \")) คำนวณอายุปีหน้า next_age = age + 1 แล้วแสดงผลด้วย print()",
+                targetDisplay: "ปีหน้าคุณจะอายุ [age + 1] ปี",
+                starterCode: 'age = int(input("กรอกอายุ: "))\nnext_age = age + 1\nprint("ปีหน้าคุณจะอายุ", next_age, "ปี")',
+                hint: "โค้ดตัวอย่างเกือบสมบูรณ์แล้ว! ลองตรวจสอบคำสั่ง int(input()) และกดปุ่ม '▶ รันคำสั่ง' จากนั้นลองพิมพ์อายุของคุณลงใน Terminal",
+                explanation: "ถูกต้อง! การครอบ input() ด้วย int() จะแปลงข้อความที่พิมพ์ให้เป็นตัวเลขจำนวนเต็ม ทำให้สามารถนำมาบวก 1 ได้",
+                validate: (env, outputs, code) => {
+                    return /int\s*\(\s*input\s*\(/.test(code) && typeof env.age?.value === 'number' && typeof env.next_age?.value === 'number' && outputs.length > 0;
+                }
+            },
+            {
+                id: 8,
+                title: "ภารกิจรวมพลัง: ร้านค้าทอนเงิน",
+                tag: "รวม 3 หัวข้อหลัก",
+                description: "รับราคาสินค้า price = int(input(\"ราคาสินค้า: \")) และเงินที่จ่าย pay = int(input(\"รับเงินมา: \")) คำนวณเงินทอน change = pay - price แล้วแสดงผล",
+                targetDisplay: "เงินทอนคือ [change] บาท",
+                starterCode: 'price = int(input("ราคาสินค้า: "))\npay = int(input("รับเงินมา: "))\nchange = \nprint("เงินทอนคือ", change, "บาท")',
+                hint: "เติมสูตรคำนวณเงินทอนในบรรทัดที่ 3 เป็น change = pay - price แล้วกดรันเพื่อทดสอบป้อนราคาสินค้าและเงินที่จ่ายจริง",
+                explanation: "ขอแสดงความยินดี! คุณเข้าใจพื้นฐานการใช้ input(), ตัวแปร, การคำนวณ และ print() ของภาษา Python อย่างสมบูรณ์แล้ว!",
+                validate: (env, outputs, code) => {
+                    return typeof env.price?.value === 'number' && typeof env.pay?.value === 'number' && typeof env.change?.value === 'number' && outputs.some(l => l.includes("เงินทอนคือ"));
+                }
             }
         ];
 
-        const container = document.getElementById('itemContainer');
-        const modal = document.getElementById('reportModal');
-        const form = document.getElementById('reportForm');
+        /* =========================================================================
+           3. STUDY GUIDE CONTENT (คลังความรู้ ม.3)
+           ========================================================================= */
+        const GUIDE_TABS = {
+            print: `
+                <h4 class="text-lg font-bold text-sky-400">1. คำสั่งแสดงผล <code class="bg-slate-900 px-2 py-0.5 rounded">print()</code></h4>
+                <p>ใช้สำหรับแสดงข้อความ ตัวเลข หรือผลลัพธ์ของตัวแปรออกทางหน้าจอ มีรูปแบบการใช้งานหลัก 3 แบบ:</p>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 font-code text-xs sm:text-sm space-y-2">
+                    <div><span class="text-slate-500"># แบบที่ 1: แสดงข้อความ (ต้องใส่เครื่องหมายคำพูด " " หรือ ' ')</span></div>
+                    <div class="text-sky-300">print("สวัสดีนักเรียนชั้น ม.3")</div>
+                    <div class="pt-2"><span class="text-slate-500"># แบบที่ 2: แสดงค่าในตัวแปร (ไม่ต้องใส่เครื่องหมายคำพูด)</span></div>
+                    <div class="text-sky-300">school = "โรงเรียนวิทยาการ"</div>
+                    <div class="text-sky-300">print(school)</div>
+                    <div class="pt-2"><span class="text-slate-500"># แบบที่ 3: แสดงข้อความร่วมกับตัวแปร ใช้จุลภาค (,) คั่น</span></div>
+                    <div class="text-sky-300">score = 95</div>
+                    <div class="text-sky-300">print("คะแนนสอบของคุณคือ", score, "คะแนน")</div>
+                </div>
+                <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs">
+                    ⚠️ <strong>ข้อควรระวัง:</strong> ภาษา Python แยกตัวพิมพ์เล็ก-ใหญ่ (Case-Sensitive) ต้องเขียน <code>print</code> ด้วยตัวพิมพ์เล็กทั้งหมด ห้ามเขียน <code>Print()</code>
+                </div>
+            `,
+            vars: `
+                <h4 class="text-lg font-bold text-yellow-300">2. ตัวแปรและชนิดข้อมูล (Variables & Data Types)</h4>
+                <p><strong>ตัวแปร (Variable)</strong> เปรียบเสมือน "กล่องเก็บข้อมูล" ในหน่วยความจำ โดยใช้เครื่องหมาย <code>=</code> เพื่อนำค่าไปเก็บไว้ในตัวแปร</p>
+                <div class="grid sm:grid-cols-3 gap-3 my-2">
+                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-amber-300 font-bold font-code">str (ข้อความ)</div>
+                        <div class="text-xs text-slate-400 mt-1">ข้อมูลตัวอักษร อยู่ภายใต้เครื่องหมายคำพูด เช่น <code>name = "แพรว"</code></div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-purple-300 font-bold font-code">int (จำนวนเต็ม)</div>
+                        <div class="text-xs text-slate-400 mt-1">ตัวเลขไม่มีจุดทศนิยม นำมาบวกลบคูณหารได้ เช่น <code>age = 15</code></div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-emerald-300 font-bold font-code">float (ทศนิยม)</div>
+                        <div class="text-xs text-slate-400 mt-1">ตัวเลขที่มีจุดทศนิยม เช่น <code>gpa = 3.85</code></div>
+                    </div>
+                </div>
+                <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 font-code text-xs space-y-1">
+                    <div class="text-slate-400"># ตัวอย่างการคำนวณตัวแปร</div>
+                    <div>a = 10</div>
+                    <div>b = 5</div>
+                    <div>sum_val = a + b   <span class="text-slate-500"># บวก (+) ลบ (-) คูณ (*) หาร (/)</span></div>
+                    <div>print("ผลรวม =", sum_val)</div>
+                </div>
+            `,
+            input: `
+                <h4 class="text-lg font-bold text-emerald-400">3. คำสั่งรับค่า <code class="bg-slate-900 px-2 py-0.5 rounded">input()</code> และการแปลงข้อมูล</h4>
+                <p>คำสั่ง <code>input("ข้อความคำถาม")</code> ใช้รับข้อมูลจากผู้ใช้ทางแป้นพิมพ์ โดยค่าที่รับเข้ามาจะเป็น <strong>ข้อความ (str)</strong> เสมอ</p>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 font-code text-xs sm:text-sm space-y-2">
+                    <div class="text-slate-400"># 1. รับข้อความทั่วไป</div>
+                    <div class="text-emerald-300">city = input("คุณอยู่จังหวัดอะไร: ")</div>
+                    <div class="pt-2 text-slate-400"># 2. รับตัวเลขจำนวนเต็ม ต้องครอบด้วย int()</div>
+                    <div class="text-purple-300">num = int(input("กรอกจำนวนเต็ม: "))</div>
+                    <div class="pt-2 text-slate-400"># 3. รับตัวเลขทศนิยม ต้องครอบด้วย float()</div>
+                    <div class="text-sky-300">weight = float(input("กรอกน้ำหนัก (กก.): "))</div>
+                </div>
+                <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs">
+                    💡 <strong>ทำไมต้องใช้ int(input())?</strong> เพราะถ้าไม่แปลงเป็นตัวเลข แล้วนำ <code>"5" + "5"</code> มาบวกกัน Python จะนำข้อความมาต่อกันได้เป็น <code>"55"</code> แทนที่จะเป็น <code>10</code>!
+                </div>
+            `
+        };
 
-        // Function to render items (แก้ไขส่วนแสดงผลรูปภาพ)
-        function renderItems(filter = 'all') {
-            container.innerHTML = '';
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.innerText === (filter === 'all' ? 'ทั้งหมด' : (filter === 'lost' ? 'ของหาย' : 'เก็บได้'))) {
-                    btn.classList.add('active');
+        /* =========================================================================
+           4. APPLICATION STATE & PERSISTENCE
+           ========================================================================= */
+        let appState = {
+            screen: 'home',
+            currentLevelIdx: 0,
+            unlockedLevels: [true, true, true, true, true, true, true, true],
+            completedLevels: [false, false, false, false, false, false, false, false],
+            hearts: 3,
+            score: 0,
+            soundEnabled: true,
+            isExecuting: false,
+            pendingInputResolve: null
+        };
+
+        function saveProgress() {
+            try {
+                localStorage.setItem('pythonQuestM3_v2', JSON.stringify({
+                    completedLevels: appState.completedLevels,
+                    score: appState.score
+                }));
+            } catch (e) {}
+        }
+
+        function loadProgress() {
+            try {
+                const raw = localStorage.getItem('pythonQuestM3_v2');
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (Array.isArray(data.completedLevels)) appState.completedLevels = data.completedLevels;
+                    if (typeof data.score === 'number') appState.score = data.score;
+                }
+            } catch (e) {}
+        }
+
+        /* =========================================================================
+           5. MINI PYTHON INTERPRETER ENGINE (SAFE & EDUCATIONAL)
+           ========================================================================= */
+        class MiniPythonInterpreter {
+            constructor({ onPrint, onMemoryUpdate, onRequestInput }) {
+                this.env = {}; // { varName: { value, type } }
+                this.outputs = [];
+                this.onPrint = onPrint;
+                this.onMemoryUpdate = onMemoryUpdate;
+                this.onRequestInput = onRequestInput;
+            }
+
+            getTypeLabel(val) {
+                if (typeof val === 'string') return 'str';
+                if (typeof val === 'number') return Number.isInteger(val) ? 'int' : 'float';
+                return 'unknown';
+            }
+
+            // Split top-level arguments by delimiter (ignoring inside quotes or parentheses)
+            splitTopLevel(str, delimiter = ',') {
+                const parts = [];
+                let current = '';
+                let depth = 0;
+                let quote = null;
+                for (let i = 0; i < str.length; i++) {
+                    const ch = str[i];
+                    if (quote) {
+                        current += ch;
+                        if (ch === quote && str[i - 1] !== '\\') quote = null;
+                    } else {
+                        if (ch === '"' || ch === "'") {
+                            quote = ch;
+                            current += ch;
+                        } else if (ch === '(') {
+                            depth++;
+                            current += ch;
+                        } else if (ch === ')') {
+                            depth--;
+                            current += ch;
+                        } else if (ch === delimiter && depth === 0) {
+                            parts.push(current.trim());
+                            current = '';
+                        } else {
+                            current += ch;
+                        }
+                    }
+                }
+                if (current.trim() !== '') parts.push(current.trim());
+                return parts;
+            }
+
+            // Evaluate a Python expression asynchronously (supports input())
+            async evalExpr(expr) {
+                expr = expr.trim();
+                if (!expr) throw new Error("SyntaxError: นิพจน์ว่างเปล่า");
+
+                // Strip outer matching parentheses if they wrap the entire expression
+                while (expr.startsWith('(') && expr.endsWith(')') && this.hasMatchingOuterParens(expr)) {
+                    expr = expr.slice(1, -1).trim();
+                }
+
+                // 1. String literal
+                if ((expr.startsWith('"') && expr.endsWith('"') && expr.indexOf('"', 1) === expr.length - 1) ||
+                    (expr.startsWith("'") && expr.endsWith("'") && expr.indexOf("'", 1) === expr.length - 1)) {
+                    return expr.slice(1, -1);
+                }
+
+                // 2. Numeric literal
+                if (/^-?\d+(\.\d+)?$/.test(expr)) {
+                    return Number(expr);
+                }
+
+                // 3. Function calls: input(...), int(...), float(...), str(...)
+                const fnMatch = expr.match(/^(input|int|float|str)\((.*)\)$/);
+                if (fnMatch && this.hasMatchingOuterParens(expr.slice(fnMatch[1].length))) {
+                    const fnName = fnMatch[1];
+                    const inner = fnMatch[2].trim();
+                    if (fnName === 'input') {
+                        const promptStr = inner ? String(await this.evalExpr(inner)) : '';
+                        const userTyped = await this.onRequestInput(promptStr);
+                        return String(userTyped);
+                    }
+                    const argVal = await this.evalExpr(inner);
+                    if (fnName === 'int') {
+                        const parsed = parseInt(argVal, 10);
+                        if (isNaN(parsed)) throw new Error(`ValueError: ไม่สามารถแปลง "${argVal}" เป็นจำนวนเต็ม int() ได้ (กรุณาป้อนตัวเลข)`);
+                        return parsed;
+                    }
+                    if (fnName === 'float') {
+                        const parsed = parseFloat(argVal);
+                        if (isNaN(parsed)) throw new Error(`ValueError: ไม่สามารถแปลง "${argVal}" เป็นทศนิยม float() ได้ (กรุณาป้อนตัวเลข)`);
+                        return parsed;
+                    }
+                    if (fnName === 'str') {
+                        return String(argVal);
+                    }
+                }
+
+                // 4. Binary operators (+, -, *, /) at top level (lowest precedence first: + / - then * / /)
+                for (const opGroup of [['+', '-'], ['*', '/']]) {
+                    const splitOp = this.findRightmostTopLevelOp(expr, opGroup);
+                    if (splitOp) {
+                        const leftVal = await this.evalExpr(splitOp.left);
+                        const rightVal = await this.evalExpr(splitOp.right);
+                        if (splitOp.op === '+') {
+                            if (typeof leftVal === 'string' && typeof rightVal === 'string') return leftVal + rightVal;
+                            if (typeof leftVal === 'number' && typeof rightVal === 'number') return leftVal + rightVal;
+                            throw new Error(`TypeError: ไม่สามารถนำข้อความ (str) มาบวก (+) กับตัวเลข (int/float) ได้โดยตรง ต้องใช้จุลภาค (,) คั่นใน print()`);
+                        }
+                        if (typeof leftVal !== 'number' || typeof rightVal !== 'number') {
+                            throw new Error(`TypeError: เครื่องหมาย '${splitOp.op}' ใช้ได้กับตัวเลขเท่านั้น`);
+                        }
+                        if (splitOp.op === '-') return leftVal - rightVal;
+                        if (splitOp.op === '*') return leftVal * rightVal;
+                        if (splitOp.op === '/') {
+                            if (rightVal === 0) throw new Error("ZeroDivisionError: ไม่สามารถหารด้วยศูนย์ (0) ได้");
+                            return Number((leftVal / rightVal).toFixed(4));
+                        }
+                    }
+                }
+
+                // 5. Variable lookup
+                if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(expr)) {
+                    if (!(expr in this.env)) {
+                        throw new Error(`NameError: ไม่รู้จักชื่อ '${expr}' (หากต้องการแสดงเป็นข้อความ กรุณาใส่เครื่องหมายคำพูด "${expr}" ครอบไว้ หรือสร้างตัวแปร ${expr} = ... ก่อนใช้งาน)`);
+                    }
+                    return this.env[expr].value;
+                }
+
+                throw new Error(`SyntaxError: ไม่เข้าใจรูปแบบคำสั่ง "${expr}" (ตรวจสอบวงเล็บหรือเครื่องหมายคำพูดให้ครบคู่)`);
+            }
+
+            hasMatchingOuterParens(str) {
+                if (!str.startsWith('(') || !str.endsWith(')')) return false;
+                let depth = 0, quote = null;
+                for (let i = 0; i < str.length; i++) {
+                    const ch = str[i];
+                    if (quote) {
+                        if (ch === quote && str[i - 1] !== '\\') quote = null;
+                    } else {
+                        if (ch === '"' || ch === "'") quote = ch;
+                        else if (ch === '(') depth++;
+                        else if (ch === ')') {
+                            depth--;
+                            if (depth === 0 && i < str.length - 1) return false;
+                        }
+                    }
+                }
+                return depth === 0;
+            }
+
+            findRightmostTopLevelOp(expr, ops) {
+                let depth = 0, quote = null;
+                for (let i = expr.length - 1; i >= 0; i--) {
+                    const ch = expr[i];
+                    if (quote) {
+                        if (ch === quote && expr[i - 1] !== '\\') quote = null;
+                    } else {
+                        if (ch === '"' || ch === "'") quote = ch;
+                        else if (ch === ')') depth++;
+                        else if (ch === '(') depth--;
+                        else if (depth === 0 && ops.includes(ch) && i > 0) {
+                            return {
+                                left: expr.slice(0, i),
+                                op: ch,
+                                right: expr.slice(i + 1)
+                            };
+                        }
+                    }
+                }
+                return null;
+            }
+
+            async executeLines(lines) {
+                for (let idx = 0; idx < lines.length; idx++) {
+                    let line = lines[idx].trim();
+                    if (!line || line.startsWith('#')) continue;
+                    // Strip inline comments outside quotes
+                    line = this.stripComment(line);
+
+                    // Check print(...)
+                    if (line.startsWith('print(') && line.endsWith(')')) {
+                        const inner = line.slice(6, -1).trim();
+                        if (!inner) {
+                            this.outputs.push('');
+                            this.onPrint('');
+                        } else {
+                            const args = this.splitTopLevel(inner, ',');
+                            const evaluatedArgs = [];
+                            for (const arg of args) {
+                                evaluatedArgs.push(await this.evalExpr(arg));
+                            }
+                            const lineOut = evaluatedArgs.join(' ');
+                            this.outputs.push(lineOut);
+                            this.onPrint(lineOut);
+                        }
+                        continue;
+                    }
+
+                    // Check variable assignment: varName = expr
+                    const assignIdx = this.findTopLevelAssign(line);
+                    if (assignIdx !== -1) {
+                        const varName = line.slice(0, assignIdx).trim();
+                        const rhs = line.slice(assignIdx + 1).trim();
+                        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(varName)) {
+                            throw new Error(`SyntaxError: ชื่อตัวแปร "${varName}" ไม่ถูกต้องตามหลักภาษา Python`);
+                        }
+                        const val = await this.evalExpr(rhs);
+                        this.env[varName] = { value: val, type: this.getTypeLabel(val) };
+                        this.onMemoryUpdate({ ...this.env });
+                        continue;
+                    }
+
+                    throw new Error(`SyntaxError: ไม่สามารถประมวลผลบรรทัดที่ ${idx + 1}: "${line}"`);
+                }
+                return { env: this.env, outputs: this.outputs };
+            }
+
+            stripComment(line) {
+                let quote = null;
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (quote) {
+                        if (ch === quote && line[i - 1] !== '\\') quote = null;
+                    } else {
+                        if (ch === '"' || ch === "'") quote = ch;
+                        else if (ch === '#') return line.slice(0, i).trim();
+                    }
+                }
+                return line;
+            }
+
+            findTopLevelAssign(line) {
+                let depth = 0, quote = null;
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (quote) {
+                        if (ch === quote && line[i - 1] !== '\\') quote = null;
+                    } else {
+                        if (ch === '"' || ch === "'") quote = ch;
+                        else if (ch === '(') depth++;
+                        else if (ch === ')') depth--;
+                        else if (ch === '=' && depth === 0 && line[i + 1] !== '=' && line[i - 1] !== '=') {
+                            return i;
+                        }
+                    }
+                }
+                return -1;
+            }
+        }
+
+        /* =========================================================================
+           6. UI NAVIGATION & MODAL CONTROLLERS
+           ========================================================================= */
+        function navigateTo(screenName) {
+            SoundFX.click();
+            appState.screen = screenName;
+            ['home', 'game', 'sandbox', 'victory'].forEach(s => {
+                const el = document.getElementById(`screen-${s}`);
+                if (el) el.classList.toggle('hidden', s !== screenName);
+            });
+
+            if (screenName === 'home') {
+                renderHomeStageGrid();
+                updateHomeStartButton();
+            } else if (screenName === 'victory') {
+                document.getElementById('cert-score').textContent = appState.score;
+                const today = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('cert-date').textContent = today;
+                triggerConfetti();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openModal(id) {
+            SoundFX.click();
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'modal-guide') switchGuideTab('print');
+        }
+
+        function closeModal(id) {
+            SoundFX.click();
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function closeModalOnBackdrop(event, id) {
+            if (event.target.id === id) closeModal(id);
+        }
+
+        function switchGuideTab(tabKey) {
+            SoundFX.click();
+            ['print', 'vars', 'input'].forEach(k => {
+                const btn = document.getElementById(`tab-guide-${k}`);
+                if (k === tabKey) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-sky-500 text-white transition";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+                }
+            });
+            document.getElementById('guide-content-area').innerHTML = GUIDE_TABS[tabKey];
+        }
+
+        function toggleSound() {
+            appState.soundEnabled = !appState.soundEnabled;
+            document.getElementById('btn-sound').textContent = appState.soundEnabled ? '🔊' : '🔇';
+            if (appState.soundEnabled) SoundFX.click();
+            showToast(appState.soundEnabled ? 'เปิดเสียงเอฟเฟกต์แล้ว' : 'ปิดเสียงเอฟเฟกต์แล้ว', 'info');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const colors = {
+                info: 'bg-slate-800 border-sky-500/50 text-sky-200',
+                success: 'bg-emerald-950/95 border-emerald-500 text-emerald-200',
+                error: 'bg-rose-950/95 border-rose-500 text-rose-200'
+            };
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl text-xs sm:text-sm font-medium animate-pop ${colors[type] || colors.info}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.25s';
+                setTimeout(() => toast.remove(), 250);
+            }, 2800);
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 70, spread: 65, origin: { y: 0.65 } });
+            }
+        }
+
+        /* =========================================================================
+           7. HOME SCREEN RENDERING
+           ========================================================================= */
+        function updateHomeStartButton() {
+            const nextUncompleted = appState.completedLevels.findIndex(c => !c);
+            const targetIdx = nextUncompleted === -1 ? 0 : nextUncompleted;
+            const label = document.getElementById('btn-start-label');
+            if (nextUncompleted === -1) {
+                label.textContent = 'ฝึกพิมพ์ทบทวนด่านที่ 1 (ครบทุกด่านแล้ว!)';
+            } else {
+                label.textContent = `เริ่มลองพิมพ์โค้ดด่านที่ ${targetIdx + 1}`;
+            }
+        }
+
+        function startGameFromHome() {
+            const nextUncompleted = appState.completedLevels.findIndex(c => !c);
+            const targetIdx = nextUncompleted === -1 ? 0 : nextUncompleted;
+            loadLevel(targetIdx);
+        }
+
+        function renderHomeStageGrid() {
+            const grid = document.getElementById('stage-grid');
+            grid.innerHTML = '';
+            LEVELS.forEach((lvl, idx) => {
+                const completed = appState.completedLevels[idx];
+                const card = document.createElement('button');
+                card.onclick = () => loadLevel(idx);
+
+                const borderClass = completed
+                    ? 'border-emerald-500/50 bg-slate-900 hover:border-emerald-400'
+                    : 'border-sky-500/40 bg-slate-900 hover:border-sky-400';
+
+                card.className = `text-left p-4 rounded-2xl border transition flex flex-col justify-between gap-3 ${borderClass}`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between w-full">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${completed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-sky-500/20 text-sky-300'}">
+                            ด่านที่ ${lvl.id}
+                        </span>
+                        <span class="text-base">${completed ? '✅' : '⌨️'}</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-sm sm:text-base line-clamp-1">${lvl.title}</div>
+                        <div class="text-xs font-code text-slate-400 mt-1">${lvl.tag}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function resetAllProgress() {
+            SoundFX.remove();
+            appState.completedLevels = [false, false, false, false, false, false, false, false];
+            appState.score = 0;
+            saveProgress();
+            renderHomeStageGrid();
+            updateHomeStartButton();
+            showToast('รีเซ็ตคะแนนและความคืบหน้าเรียบร้อยแล้ว', 'info');
+        }
+
+        /* =========================================================================
+           8. GAMEPLAY LEVEL LOADER & INTERACTIVE CODE EDITOR
+           ========================================================================= */
+        function loadLevel(idx) {
+            appState.currentLevelIdx = idx;
+            appState.hearts = 3;
+            appState.isExecuting = false;
+            appState.pendingInputResolve = null;
+
+            const lvl = LEVELS[idx];
+
+            navigateTo('game');
+            updateGameHUD();
+
+            document.getElementById('mission-topic-badge').textContent = lvl.tag;
+            document.getElementById('mission-desc').textContent = lvl.description;
+            document.getElementById('mission-target').textContent = lvl.targetDisplay;
+            const hintBox = document.getElementById('mission-hint-box');
+            hintBox.classList.add('hidden');
+            hintBox.innerHTML = `
+                <div>💡 <strong>คำแนะนำ:</strong> ${lvl.hint}</div>
+            `;
+
+            const editor = document.getElementById('student-code-editor');
+            editor.value = lvl.starterCode || '';
+            updateLineNumbers();
+            resetTerminalAndMemory();
+        }
+
+        function updateGameHUD() {
+            const idx = appState.currentLevelIdx;
+            const lvl = LEVELS[idx];
+            document.getElementById('hud-level-badge').textContent = `ด่านที่ ${lvl.id} / ${LEVELS.length}`;
+            document.getElementById('hud-level-title').textContent = lvl.title;
+            document.getElementById('hud-hearts').textContent = '❤️'.repeat(appState.hearts) + '🖤'.repeat(Math.max(0, 3 - appState.hearts));
+            document.getElementById('hud-score').textContent = appState.score;
+
+            // Progress dots
+            const dotsEl = document.getElementById('hud-progress-dots');
+            dotsEl.innerHTML = LEVELS.map((_, i) => {
+                const isCurr = i === idx;
+                const isDone = appState.completedLevels[i];
+                return `<span class="w-2.5 h-2.5 rounded-full ${isCurr ? 'bg-yellow-400 scale-125' : isDone ? 'bg-emerald-400' : 'bg-slate-700'} transition"></span>`;
+            }).join('');
+        }
+
+        function toggleHint() {
+            SoundFX.click();
+            const box = document.getElementById('mission-hint-box');
+            box.classList.toggle('hidden');
+        }
+
+        function updateLineNumbers() {
+            const editor = document.getElementById('student-code-editor');
+            const lineCount = Math.max(1, editor.value.split('\n').length);
+            const gutter = document.getElementById('editor-line-numbers');
+            gutter.innerHTML = Array.from({ length: lineCount }, (_, i) => i + 1).join('<br>');
+        }
+
+        function handleEditorKeydown(e) {
+            // Support Tab key indentation cleanly inside the code editor
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                insertSnippet('    ', 4);
+            }
+        }
+
+        function insertSnippet(snippetText, cursorOffset) {
+            if (appState.isExecuting) return;
+            SoundFX.snap();
+            const editor = document.getElementById('student-code-editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const currentVal = editor.value;
+
+            editor.value = currentVal.substring(0, start) + snippetText + currentVal.substring(end);
+            const newCursorPos = start + (typeof cursorOffset === 'number' ? cursorOffset : snippetText.length);
+            editor.focus();
+            editor.setSelectionRange(newCursorPos, newCursorPos);
+            updateLineNumbers();
+        }
+
+        function resetLevelCode() {
+            if (appState.isExecuting) return;
+            SoundFX.remove();
+            const lvl = LEVELS[appState.currentLevelIdx];
+            const editor = document.getElementById('student-code-editor');
+            editor.value = lvl.starterCode || '';
+            updateLineNumbers();
+            resetTerminalAndMemory();
+            showToast('รีเซ็ตกลับเป็นโค้ดเริ่มต้นของด่านนี้แล้ว', 'info');
+        }
+
+        function clearCodeEditor() {
+            if (appState.isExecuting) return;
+            SoundFX.remove();
+            const editor = document.getElementById('student-code-editor');
+            editor.value = '';
+            editor.focus();
+            updateLineNumbers();
+            resetTerminalAndMemory();
+        }
+
+        /* =========================================================================
+           9. TERMINAL, VARIABLE INSPECTOR & EXECUTION
+           ========================================================================= */
+        function resetTerminalAndMemory() {
+            document.getElementById('terminal-output').innerHTML = `<div class="text-slate-500">กดปุ่ม "▶ รันโปรแกรม" เพื่อดูการทำงานของโค้ด...</div>`;
+            document.getElementById('terminal-input-form').classList.add('hidden');
+            document.getElementById('feedback-card').classList.add('hidden');
+            document.getElementById('memory-inspector').innerHTML = `
+                <div class="col-span-2 flex items-center justify-center text-xs text-slate-500 bg-slate-950/60 rounded-xl py-4 border border-slate-800/80">
+                    ยังไม่มีตัวแปรถูกสร้างในหน่วยความจำ
+                </div>
+            `;
+        }
+
+        function updateMemoryInspector(envObj, containerId = 'memory-inspector') {
+            const container = document.getElementById(containerId);
+            const keys = Object.keys(envObj);
+            if (keys.length === 0) return;
+
+            container.innerHTML = keys.map(k => {
+                const item = envObj[k];
+                const displayVal = item.type === 'str' ? `"${item.value}"` : item.value;
+                const badgeColor = item.type === 'str' ? 'text-amber-300 bg-amber-500/15' : item.type === 'int' ? 'text-purple-300 bg-purple-500/15' : 'text-emerald-300 bg-emerald-500/15';
+                return `
+                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-700/90 flex items-center justify-between gap-2 animate-pop">
+                        <div class="min-w-0">
+                            <div class="text-[11px] text-slate-400 font-code truncate">${k}</div>
+                            <div class="font-code text-xs sm:text-sm font-bold text-white truncate">${displayVal}</div>
+                        </div>
+                        <span class="text-[10px] font-code px-2 py-0.5 rounded-md font-bold ${badgeColor}">${item.type}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function appendTerminalLine(htmlContent, terminalId = 'terminal-output') {
+            const term = document.getElementById(terminalId);
+            const div = document.createElement('div');
+            div.className = 'animate-pop leading-relaxed';
+            div.innerHTML = htmlContent;
+            term.appendChild(div);
+            term.scrollTop = term.scrollHeight;
+            return div;
+        }
+
+        async function runAssembledCode() {
+            if (appState.isExecuting) return;
+            const lvl = LEVELS[appState.currentLevelIdx];
+            const rawCode = document.getElementById('student-code-editor').value;
+
+            if (!rawCode.trim()) {
+                SoundFX.error();
+                showToast('กรุณาพิมพ์คำสั่ง Python ลงในช่องเขียนโค้ดก่อนกดรัน!', 'error');
+                return;
+            }
+
+            const lines = rawCode.split('\n');
+            appState.isExecuting = true;
+            document.getElementById('btn-run-code').disabled = true;
+            document.getElementById('feedback-card').classList.add('hidden');
+            document.getElementById('terminal-output').innerHTML = `<div class="text-sky-400 text-xs">&gt;&gt;&gt; กำลังรัน main.py ...</div>`;
+            document.getElementById('memory-inspector').innerHTML = `
+                <div class="col-span-2 flex items-center justify-center text-xs text-slate-500 bg-slate-950/60 rounded-xl py-4 border border-slate-800/80">
+                    กำลังประมวลผลตัวแปร...
+                </div>
+            `;
+
+            const interpreter = new MiniPythonInterpreter({
+                onPrint: (text) => {
+                    appendTerminalLine(`<span class="text-emerald-400 font-bold">&gt;</span> <span class="text-white">${escapeHTML(text)}</span>`);
+                },
+                onMemoryUpdate: (env) => {
+                    updateMemoryInspector(env, 'memory-inspector');
+                },
+                onRequestInput: (promptText) => {
+                    return new Promise((resolve) => {
+                        const promptLine = appendTerminalLine(
+                            `<span class="text-amber-300">? ${escapeHTML(promptText)}</span> <span class="text-slate-400 italic">[รอป้อนค่าด้านล่าง...]</span>`
+                        );
+                        const form = document.getElementById('terminal-input-form');
+                        const field = document.getElementById('terminal-input-field');
+                        form.classList.remove('hidden');
+                        field.value = '';
+                        field.focus();
+
+                        appState.pendingInputResolve = (val) => {
+                            form.classList.add('hidden');
+                            promptLine.innerHTML = `<span class="text-amber-300">? ${escapeHTML(promptText)}</span> <span class="text-sky-300 underline font-bold">${escapeHTML(val)}</span>`;
+                            resolve(val);
+                        };
+                    });
                 }
             });
 
-            const filteredItems = filter === 'all' ? items : items.filter(item => item.type === filter);
+            try {
+                const { env, outputs } = await interpreter.executeLines(lines);
+                const passed = lvl.validate(env, outputs, rawCode);
+                if (passed) {
+                    handleLevelSuccess(lvl);
+                } else {
+                    handleLevelFailure("รันโค้ดสำเร็จแล้ว แต่ผลลัพธ์หรือคำสั่งยังไม่ตรงตามโจทย์ภารกิจ ลองตรวจสอบรายละเอียดโจทย์หรือกดปุ่ม '💡 คำใบ้ / ตัวอย่าง' ดูนะ!");
+                }
+            } catch (err) {
+                appendTerminalLine(`<span class="text-rose-400 font-bold">❌ ${escapeHTML(err.message)}</span>`);
+                handleLevelFailure(err.message);
+            } finally {
+                appState.isExecuting = false;
+                document.getElementById('btn-run-code').disabled = false;
+            }
+        }
 
-            filteredItems.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                // ใช้รูปภาพจาก URL ที่เตรียมไว้, หากโหลดไม่ได้ให้ใช้รูปกล่องแทน
-                const fallbackImage = 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=500&q=80'; 
+        function submitTerminalInput(e) {
+            e.preventDefault();
+            if (appState.pendingInputResolve) {
+                SoundFX.click();
+                const val = document.getElementById('terminal-input-field').value;
+                const resolver = appState.pendingInputResolve;
+                appState.pendingInputResolve = null;
+                resolver(val);
+            }
+        }
 
-                card.innerHTML = `
-                    <div class="status-badge ${item.type === 'lost' ? 'status-lost' : 'status-found'}">
-                        ${item.type === 'lost' ? '
+        function handleLevelSuccess(lvl) {
+            SoundFX.success();
+            triggerConfetti();
+
+            const idx = appState.currentLevelIdx;
+            if (!appState.completedLevels[idx]) {
+                appState.completedLevels[idx] = true;
+                appState.score += 100 + (appState.hearts * 20);
+            }
+            if (idx + 1 < LEVELS.length) {
+                appState.unlockedLevels[idx + 1] = true;
+            }
+            saveProgress();
+            updateGameHUD();
+
+            const isLastLevel = idx === LEVELS.length - 1;
+            const fb = document.getElementById('feedback-card');
+            fb.className = 'rounded-2xl p-4 sm:p-5 border border-emerald-500/60 bg-emerald-950/50 shadow-lg animate-pop space-y-3';
+            fb.innerHTML = `
+                <div class="flex items-center gap-2 text-emerald-300 font-bold text-base sm:text-lg">
+                    <span>🎉</span><span>ภารกิจสำเร็จ! ยอดเยี่ยมมาก</span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${lvl.explanation}</p>
+                <div class="pt-1">
+                    ${isLastLevel
+                        ? `<button onclick="navigateTo('victory')" class="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-extrabold text-sm sm:text-base shadow-lg transition">🏆 รับเกียรติบัตรผู้พิชิต Python ม.3</button>`
+                        : `<button onclick="loadLevel(${idx + 1})" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm sm:text-base shadow-lg transition">ไปด่านถัดไป (ด่านที่ ${idx + 2}) &rarr;</button>`
+                    }
+                </div>
+            `;
+            fb.classList.remove('hidden');
+        }
+
+        function handleLevelFailure(reasonText) {
+            SoundFX.error();
+            appState.hearts = Math.max(0, appState.hearts - 1);
+            updateGameHUD();
+
+            const editorBox = document.getElementById('code-editor-container');
+            editorBox.classList.add('animate-shake');
+            setTimeout(() => editorBox.classList.remove('animate-shake'), 400);
+
+            const fb = document.getElementById('feedback-card');
+            fb.className = 'rounded-2xl p-4 sm:p-5 border border-rose-500/60 bg-rose-950/50 shadow-lg animate-pop space-y-3';
+
+            if (appState.hearts === 0) {
+                fb.innerHTML = `
+                    <div class="flex items-center gap-2 text-rose-300 font-bold text-base">
+                        <span>💔</span><span>พลังชีวิตหมดแล้ว!</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300">${escapeHTML(reasonText)}</p>
+                    <button onclick="loadLevel(${appState.currentLevelIdx})" class="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-sm transition">
+                        🔄 ฟื้นฟูพลังชีวิตและเริ่มด่านนี้ใหม่
+                    </button>
+                `;
+            } else {
+                fb.innerHTML = `
+                    <div class="flex items-center gap-2 text-rose-300 font-bold text-base">
+                        <span>⚠️</span><span>ยังไม่ผ่านภารกิจ (เสียพลังชีวิต 1 ดวง)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${escapeHTML(reasonText)}</p>
+                    <p class="text-xs text-slate-400">สามารถแก้ไขคำสั่งในช่องพิมพ์โค้ดด้านซ้ายแล้วกด "▶ รันคำสั่ง" ใหม่ได้ทันที</p>
+                `;
+            }
+            fb.classList.remove('hidden');
+        }
+
+        /* =========================================================================
+           10. SANDBOX PLAYGROUND LOGIC
+           ========================================================================= */
+        const SANDBOX_PRESETS = {
+            greet: `name = input("กรุณากรอกชื่อเล่นของคุณ: ")\nage = int(input("คุณอายุเท่าไร (ปี): "))\nnext_year = age + 1\nprint("สวัสดีคุณ", name)\nprint("ปีหน้าคุณจะมีอายุ", next_year, "ปี")`,
+            calc: `num1 = int(input("ป้อนตัวเลขที่ 1: "))\nnum2 = int(input("ป้อนตัวเลขที่ 2: "))\ntotal = num1 + num2\nprint("ผลบวกของทั้งสองจำนวนคือ", total)`,
+            shop: `item = input("ชื่อสินค้าที่ต้องการซื้อ: ")\nprice = int(input("ราคาต่อชิ้น (บาท): "))\nqty = int(input("จำนวนที่ซื้อ (ชิ้น): "))\ntotal = price * qty\nprint("รายการ:", item, "ยอดชำระทั้งหมด", total, "บาท")`
+        };
+
+        function loadSandboxPreset(key) {
+            SoundFX.click();
+            document.getElementById('sandbox-editor').value = SANDBOX_PRESETS[key];
+            showToast('โหลดตัวอย่างโค้ดลงในสนามทดลองแล้ว', 'info');
+        }
+
+        let sandboxPendingResolve = null;
+
+        async function runSandboxCode() {
+            SoundFX.click();
+            const codeText = document.getElementById('sandbox-editor').value;
+            const lines = codeText.split('\n');
+            const term = document.getElementById('sandbox-terminal');
+            term.innerHTML = `<div class="text-sky-400 text-xs">&gt;&gt;&gt; กำลังรัน sandbox.py ...</div>`;
+            document.getElementById('sandbox-memory').innerHTML = `<div class="col-span-2 text-xs text-slate-500 text-center py-3 bg-slate-950/60 rounded-xl">กำลังประมวลผล...</div>`;
+
+            const interpreter = new MiniPythonInterpreter({
+                onPrint: (text) => {
+                    appendTerminalLine(`<span class="text-emerald-400 font-bold">&gt;</span> <span class="text-white">${escapeHTML(text)}</span>`, 'sandbox-terminal');
+                },
+                onMemoryUpdate: (env) => {
+                    updateMemoryInspector(env, 'sandbox-memory');
+                },
+                onRequestInput: (promptText) => {
+                    return new Promise((resolve) => {
+                        const promptLine = appendTerminalLine(
+                            `<span class="text-amber-300">? ${escapeHTML(promptText)}</span> <span class="text-slate-400 italic">[ป้อนค่าด้านล่าง...]</span>`,
+                            'sandbox-terminal'
+                        );
+                        const form = document.getElementById('sandbox-input-form');
+                        const field = document.getElementById('sandbox-input-field');
+                        form.classList.remove('hidden');
+                        field.value = '';
+                        field.focus();
+
+                        sandboxPendingResolve = (val) => {
+                            form.classList.add('hidden');
+                            promptLine.innerHTML = `<span class="text-amber-300">? ${escapeHTML(promptText)}</span> <span class="text-sky-300 underline font-bold">${escapeHTML(val)}</span>`;
+                            resolve(val);
+                        };
+                    });
+                }
+            });
+
+            try {
+                await interpreter.executeLines(lines);
+                appendTerminalLine(`<div class="text-slate-500 text-xs pt-1">--- จบการทำงานของโปรแกรม ---</div>`, 'sandbox-terminal');
+                SoundFX.success();
+            } catch (err) {
+                appendTerminalLine(`<span class="text-rose-400 font-bold">❌ ${escapeHTML(err.message)}</span>`, 'sandbox-terminal');
+                SoundFX.error();
+            }
+        }
+
+        function submitSandboxInput(e) {
+            e.preventDefault();
+            if (sandboxPendingResolve) {
+                SoundFX.click();
+                const val = document.getElementById('sandbox-input-field').value;
+                const resolver = sandboxPendingResolve;
+                sandboxPendingResolve = null;
+                resolver(val);
+            }
+        }
+
+        /* =========================================================================
+           11. CERTIFICATE & UTILITY HELPERS
+           ========================================================================= */
+        function updateCertificateName(val) {
+            const display = document.getElementById('cert-display-name');
+            display.textContent = val.trim() ? val.trim() : 'นักเรียนชั้นมัธยมศึกษาปีที่ 3';
+        }
+
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // Initialize application on page load
+        window.onload = function () {
+            loadProgress();
+            renderHomeStageGrid();
+            updateHomeStartButton();
+        };
+    </script>
+</body>
+</html>
